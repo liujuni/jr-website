@@ -3,10 +3,12 @@ frontend:
   phases:
     preBuild:
       commands:
-        - npm install
+        - npm ci
     build:
       commands:
         - npm run build:prod
+        - ls -la dist/jrweb/
+        - find dist/jrweb -name "index.html"
   artifacts:
     baseDirectory: dist/jrweb
     files:
