@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
@@ -44,22 +44,16 @@ import { Router } from '@angular/router';
     }
   `]
 })
-export class VideoPageComponent implements AfterViewInit, OnDestroy {
+export class VideoPageComponent implements AfterViewInit {
   @ViewChild('introVideo') introVideo!: ElementRef<HTMLVideoElement>;
   
   readonly videoUrl = 'https://website-juniorliu.s3.us-east-2.amazonaws.com/res/is-that-you.mp4';
-  private fallbackTimeout: any;
   
   constructor(private router: Router) {}
   
   ngAfterViewInit() {
     // No automatic play attempts - wait for user to click
-    
-    // Add fallback timeout - navigate to index after 30 seconds if user doesn't interact
-    this.fallbackTimeout = setTimeout(() => {
-      console.log('Video timeout reached, navigating to index');
-      this.router.navigate(['/index']);
-    }, 30000); // Extended to 30 seconds
+    // No timeout - let user stay on video page as long as they want
   }
   
   private attemptVideoPlay() {
@@ -126,10 +120,6 @@ export class VideoPageComponent implements AfterViewInit, OnDestroy {
   
   onVideoEnd() {
     console.log('Video ended, navigating to index');
-    // Clear the fallback timeout since video ended naturally
-    if (this.fallbackTimeout) {
-      clearTimeout(this.fallbackTimeout);
-    }
     // Navigate to index page when video ends
     this.router.navigate(['/index']);
   }
@@ -139,10 +129,6 @@ export class VideoPageComponent implements AfterViewInit, OnDestroy {
     if (this.introVideo && this.introVideo.nativeElement) {
       const video = this.introVideo.nativeElement;
       if (video.paused) {
-        // Clear the timeout when user starts playing
-        if (this.fallbackTimeout) {
-          clearTimeout(this.fallbackTimeout);
-        }
         video.play().catch(error => {
           console.log('Video play failed on container click:', error);
         });
@@ -155,21 +141,10 @@ export class VideoPageComponent implements AfterViewInit, OnDestroy {
     if (this.introVideo && this.introVideo.nativeElement) {
       const video = this.introVideo.nativeElement;
       if (video.paused) {
-        // Clear the timeout when user starts playing
-        if (this.fallbackTimeout) {
-          clearTimeout(this.fallbackTimeout);
-        }
         video.play().catch(error => {
           console.log('Video play failed on video click:', error);
         });
       }
-    }
-  }
-  
-  ngOnDestroy() {
-    // Clean up timeout to prevent memory leaks
-    if (this.fallbackTimeout) {
-      clearTimeout(this.fallbackTimeout);
     }
   }
 }
