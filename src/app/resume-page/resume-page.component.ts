@@ -14,9 +14,9 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
       
       <!-- Download Button - Center -->
       <div class="download-section">
-        <a [href]="resumePdfUrl" download="resume-25.pdf" class="download-button">
+        <button (click)="downloadPdf()" class="download-button">
           Download PDF
-        </a>
+        </button>
       </div>
       
       <!-- Resume Display -->
@@ -30,7 +30,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
           (load)="onIframeLoad()"
           (error)="onIframeError()">
           <p>Your browser does not support PDFs. 
-            <a [href]="resumePdfUrl" download="resume-25.pdf">Download the PDF</a>
+            <button (click)="downloadPdf()" style="background: none; border: none; color: #007bff; text-decoration: underline; cursor: pointer;">Download the PDF</button>
           </p>
         </iframe>
         
@@ -39,9 +39,9 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
           <div class="fallback-content">
             <h2>Resume Preview</h2>
             <p>Click the "Download PDF" button above to view your resume.</p>
-            <a [href]="resumePdfUrl" download="resume-25.pdf" class="download-button-fallback">
+            <button (click)="downloadPdf()" class="download-button-fallback">
               Download Resume PDF
-            </a>
+            </button>
           </div>
         </div>
       </div>
@@ -82,6 +82,8 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
       transition: all 0.3s ease;
       font-weight: bold;
       font-size: 1.1rem;
+      cursor: pointer;
+      font-family: inherit;
     }
     
     .download-button:hover {
@@ -156,6 +158,8 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
       transition: all 0.3s ease;
       font-weight: bold;
       font-size: 1.2rem;
+      cursor: pointer;
+      font-family: inherit;
     }
     
     .download-button-fallback:hover {
@@ -281,5 +285,26 @@ export class ResumePageComponent implements OnInit {
     setTimeout(() => {
       this.showFallback = true;
     }, 5000);
+  }
+
+  downloadPdf() {
+    try {
+      // Create a temporary anchor element for download
+      const link = document.createElement('a');
+      link.href = this.resumePdfUrl;
+      link.download = 'resume-25.pdf';
+      link.target = '_blank'; // Fallback: open in new tab if download fails
+      
+      // Append to body, click, and remove
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      console.log('PDF download initiated');
+    } catch (error) {
+      console.error('Failed to download PDF:', error);
+      // Fallback: try to open in new tab
+      window.open(this.resumePdfUrl, '_blank');
+    }
   }
 }
