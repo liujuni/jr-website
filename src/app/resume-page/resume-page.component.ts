@@ -9,12 +9,14 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
   imports: [CommonModule, RouterModule],
   template: `
     <div class="resume-container">
-      <!-- Download Button -->
+      <!-- Back Button - Top Left -->
+      <a routerLink="/index" class="back-button">← Back to Home</a>
+      
+      <!-- Download Button - Center -->
       <div class="download-section">
         <a [href]="resumePdfUrl" download="resume-25.pdf" class="download-button">
           Download PDF
         </a>
-        <a routerLink="/index" class="back-button">← Back to Home</a>
       </div>
       
       <!-- Resume Display -->
@@ -59,13 +61,12 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
       top: 0;
       left: 0;
       right: 0;
-      z-index: 100;
+      z-index: 99;
       background: rgba(255, 255, 255, 0.95);
       padding: 1rem;
       display: flex;
       justify-content: center;
       align-items: center;
-      gap: 2rem;
       backdrop-filter: blur(10px);
       border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     }
@@ -90,20 +91,24 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
     }
     
     .back-button {
+      position: absolute;
+      top: 2rem;
+      left: 2rem;
       display: inline-block;
       padding: 0.8rem 1.5rem;
-      background: rgba(0, 0, 0, 0.1);
+      background: rgba(255, 255, 255, 0.2);
       color: #333;
       text-decoration: none;
-      border-radius: 6px;
-      border: 1px solid rgba(0, 0, 0, 0.2);
+      border-radius: 5px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
       transition: all 0.3s ease;
-      font-size: 0.9rem;
+      z-index: 100;
+      backdrop-filter: blur(10px);
     }
     
     .back-button:hover {
-      background: rgba(0, 0, 0, 0.2);
-      transform: translateY(-1px);
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px);
     }
     
     .resume-display {
