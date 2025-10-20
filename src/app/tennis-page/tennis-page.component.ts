@@ -1,0 +1,76 @@
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+
+@Component({
+  selector: 'app-tennis-page',
+  standalone: true,
+  imports: [CommonModule, RouterModule],
+  template: `
+    <div class="under-construction">
+      <a routerLink="/index" class="back-button">← Back to Home</a>
+      <div class="content">
+        <p>Under Construction</p>
+      </div>
+    </div>
+  `,
+  styles: [`
+    .under-construction {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: black;
+      color: white;
+      position: relative;
+    }
+    
+    .back-button {
+      position: absolute;
+      top: 2rem;
+      left: 2rem;
+      display: inline-block;
+      padding: 0.8rem 1.5rem;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      transition: all 0.3s ease;
+      z-index: 100;
+    }
+    
+    .content {
+      text-align: center;
+    }
+    
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      color: white;
+    }
+    
+    p {
+      font-size: 1.5rem;
+      margin-bottom: 2rem;
+      color: #ccc;
+    }
+    
+    .back-button:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px);
+    }
+    
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2rem;
+      }
+      
+      p {
+        font-size: 1.2rem;
+      }
+    }
+  `]
+})
+export class TennisPageComponent {
+}
