@@ -96,18 +96,17 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
       left: 2rem;
       display: inline-block;
       padding: 0.8rem 1.5rem;
-      background: rgba(60, 60, 60, 0.9);
+      background: #4a4a4a;
       color: white;
       text-decoration: none;
       border-radius: 5px;
-      border: 2px solid rgba(120, 120, 120, 0.8);
+      border: 2px solid #666666;
       transition: all 0.3s ease;
       z-index: 100;
-      backdrop-filter: blur(10px);
     }
     
     .back-button:hover {
-      background: rgba(80, 80, 80, 0.9);
+      background: #5a5a5a;
       transform: translateY(-2px);
     }
     
