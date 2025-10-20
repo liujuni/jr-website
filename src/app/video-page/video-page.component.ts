@@ -48,7 +48,7 @@ import { Router } from '@angular/router';
 export class VideoPageComponent implements AfterViewInit {
   @ViewChild('introVideo') introVideo!: ElementRef<HTMLVideoElement>;
   
-  readonly videoUrl = 'https://website-juniorliu.s3.us-east-2.amazonaws.com/is-that-you.mp4';
+  readonly videoUrl = 'https://website-juniorliu.s3.us-east-2.amazonaws.com/res/is-that-you.mp4';
   
   constructor(private router: Router) {}
   

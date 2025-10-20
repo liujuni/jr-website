@@ -80,7 +80,7 @@ import { RouterModule } from '@angular/router';
     .profile-frame {
       position: relative;
       display: inline-block;
-      background-image: url('https://website-juniorliu.s3.us-east-2.amazonaws.com/border1.jpg');
+      background-image: url('https://website-juniorliu.s3.us-east-2.amazonaws.com/res/border1.jpg');
       background-size: 140% 140%;
       background-repeat: no-repeat;
       background-position: center;
@@ -158,17 +158,17 @@ import { RouterModule } from '@angular/router';
 export class HomeComponent implements OnInit {
   // S3 URLs for assets
   readonly profilePictures = [
-    'https://website-juniorliu.s3.us-east-2.amazonaws.com/jr1.jpg',
-    'https://website-juniorliu.s3.us-east-2.amazonaws.com/jr2.jpg',
-    'https://website-juniorliu.s3.us-east-2.amazonaws.com/jr3.jpg',
-    'https://website-juniorliu.s3.us-east-2.amazonaws.com/jr4.jpg'
+    'https://website-juniorliu.s3.us-east-2.amazonaws.com/res/jr1.jpg',
+    'https://website-juniorliu.s3.us-east-2.amazonaws.com/res/jr2.jpg',
+    'https://website-juniorliu.s3.us-east-2.amazonaws.com/res/jr3.jpg',
+    'https://website-juniorliu.s3.us-east-2.amazonaws.com/res/jr4.jpg'
   ];
-  readonly linkedinIconUrl = 'https://website-juniorliu.s3.us-east-2.amazonaws.com/linkedin.png';
-  readonly cvUrl = 'https://website-juniorliu.s3.us-east-2.amazonaws.com/resume-25.pdf';
-  readonly cvIconUrl = 'https://website-juniorliu.s3.us-east-2.amazonaws.com/cv.png';
-  readonly mjClubIconUrl = 'https://website-juniorliu.s3.us-east-2.amazonaws.com/mj.png';
-  readonly porscheIconUrl = 'https://website-juniorliu.s3.us-east-2.amazonaws.com/porsche.jpg';
-  readonly tennisIconUrl = 'https://website-juniorliu.s3.us-east-2.amazonaws.com/RF.jpg';
+  readonly linkedinIconUrl = 'https://website-juniorliu.s3.us-east-2.amazonaws.com/res/linkedin.png';
+  readonly cvUrl = 'https://website-juniorliu.s3.us-east-2.amazonaws.com/res/resume-25.pdf';
+  readonly cvIconUrl = 'https://website-juniorliu.s3.us-east-2.amazonaws.com/res/cv.png';
+  readonly mjClubIconUrl = 'https://website-juniorliu.s3.us-east-2.amazonaws.com/res/mj.png';
+  readonly porscheIconUrl = 'https://website-juniorliu.s3.us-east-2.amazonaws.com/res/porsche.jpg';
+  readonly tennisIconUrl = 'https://website-juniorliu.s3.us-east-2.amazonaws.com/res/RF.jpg';
   
   currentProfileIndex = 0;
   

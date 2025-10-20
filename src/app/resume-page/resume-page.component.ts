@@ -206,7 +206,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
   `]
 })
 export class ResumePageComponent implements OnInit {
-  readonly resumePdfUrl = 'https://website-juniorliu.s3.us-east-2.amazonaws.com/resume-25.pdf';
+  readonly resumePdfUrl = 'https://website-juniorliu.s3.us-east-2.amazonaws.com/res/resume-25.pdf';
   safePdfUrl: SafeResourceUrl;
   showFallback = false;
   
