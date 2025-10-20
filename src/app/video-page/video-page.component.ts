@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
@@ -45,16 +45,23 @@ import { Router } from '@angular/router';
     }
   `]
 })
-export class VideoPageComponent implements AfterViewInit {
+export class VideoPageComponent implements AfterViewInit, OnDestroy {
   @ViewChild('introVideo') introVideo!: ElementRef<HTMLVideoElement>;
   
   readonly videoUrl = 'https://website-juniorliu.s3.us-east-2.amazonaws.com/res/is-that-you.mp4';
+  private fallbackTimeout: any;
   
   constructor(private router: Router) {}
   
   ngAfterViewInit() {
     // Try multiple times to play video after view is initialized
     this.attemptVideoPlay();
+    
+    // Add fallback timeout - navigate to index after 10 seconds if video doesn't work
+    this.fallbackTimeout = setTimeout(() => {
+      console.log('Video timeout reached, navigating to index');
+      this.router.navigate(['/index']);
+    }, 10000);
   }
   
   private attemptVideoPlay() {
@@ -131,6 +138,10 @@ export class VideoPageComponent implements AfterViewInit {
   
   onVideoEnd() {
     console.log('Video ended, navigating to index');
+    // Clear the fallback timeout since video ended naturally
+    if (this.fallbackTimeout) {
+      clearTimeout(this.fallbackTimeout);
+    }
     // Navigate to index page when video ends
     this.router.navigate(['/index']);
   }
@@ -156,6 +167,13 @@ export class VideoPageComponent implements AfterViewInit {
           console.log('Video play failed on video click:', error);
         });
       }
+    }
+  }
+  
+  ngOnDestroy() {
+    // Clean up timeout to prevent memory leaks
+    if (this.fallbackTimeout) {
+      clearTimeout(this.fallbackTimeout);
     }
   }
 }
