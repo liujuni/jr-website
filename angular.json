@@ -31,7 +31,7 @@
           },
           "configurations": {
             "production": {
-              "baseHref": "/juniorliu/",
+              "baseHref": "/jr/",
               "budgets": [
                 {
                   "type": "initial",
