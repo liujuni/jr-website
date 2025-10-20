@@ -32,6 +32,7 @@
           "configurations": {
             "production": {
               "baseHref": "/jr/",
+              "deployUrl": "/jr/",
               "budgets": [
                 {
                   "type": "initial",
