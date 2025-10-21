@@ -288,17 +288,9 @@ export class ResumePageComponent implements OnInit {
   }
 
   downloadPdf() {
-    // Simple direct download approach
-    const link = document.createElement('a');
-    link.href = this.resumePdfUrl;
-    link.download = 'resume-25.pdf';
-    link.style.display = 'none';
-    
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
-    console.log('PDF download initiated');
+    // Open PDF in a new tab
+    window.open(this.resumePdfUrl, '_blank');
+    console.log('PDF opened in new tab');
   }
 
 }
