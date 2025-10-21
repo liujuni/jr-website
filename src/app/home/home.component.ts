@@ -10,6 +10,10 @@ import { filter } from 'rxjs/operators';
   template: `
     <div class="home-container">
       <div class="profile-container" (click)="nextProfilePicture()">
+        <div class="click-hint">
+          <span class="finger-point">👆</span>
+          <span class="click-text">Click me!</span>
+        </div>
         <img 
           [src]="currentProfilePicture" 
           [alt]="'Profile Picture ' + (currentProfileIndex + 1)"
@@ -56,10 +60,47 @@ import { filter } from 'rxjs/operators';
       transition: transform 0.3s ease;
       margin: 0;
       padding: 0;
+      transform: translateY(-20px);
+      position: relative;
+    }
+    
+    .click-hint {
+      position: absolute;
+      top: -60px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      z-index: 10;
+    }
+    
+    .finger-point {
+      font-size: 24px;
+      animation: pointDown 2s ease-in-out infinite;
+    }
+    
+    .click-text {
+      color: white;
+      font-size: 14px;
+      font-weight: bold;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+    
+    @keyframes pointDown {
+      0%, 100% {
+        transform: translateY(0px);
+      }
+      50% {
+        transform: translateY(5px);
+      }
     }
     
     .profile-container:hover {
-      transform: scale(1.05);
+      transform: translateY(-20px) scale(1.05);
     }
     
     .profile-image {
@@ -77,6 +118,7 @@ import { filter } from 'rxjs/operators';
       display: flex;
       gap: 4rem;
       margin-top: 3rem;
+      transform: translateY(-20px);
     }
     
     .nav-icon {
