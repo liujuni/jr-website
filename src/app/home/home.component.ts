@@ -371,6 +371,11 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   
   nextProfilePicture() {
     this.currentProfileIndex = (this.currentProfileIndex + 1) % this.profilePictures.length;
+    
+    // Remove hovering state on mobile after click (simulate leaving the area)
+    if (this.isMobile()) {
+      this.onProfileAreaLeave();
+    }
   }
   
   onProfileAreaEnter() {
