@@ -288,57 +288,87 @@ export class ResumePageComponent implements OnInit {
   }
 
   async downloadPdf() {
+    // Try multiple methods to bypass Chrome extension interference
+    
+    // Method 1: Direct XMLHttpRequest blob download (most reliable)
     try {
-      // Method 1: Try blob download first (bypasses extensions, uses original URL)
-      try {
-        const response = await fetch(this.resumePdfUrl, {
-          method: 'GET',
-          headers: {
-            'Accept': 'application/pdf,application/octet-stream,*/*',
-          },
-        });
-        
-        if (response.ok) {
-          const blob = await response.blob();
-          const url = window.URL.createObjectURL(blob);
-          
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = 'resume-25.pdf';
-          link.style.display = 'none';
-          
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          
-          // Clean up the object URL
-          setTimeout(() => {
-            window.URL.revokeObjectURL(url);
-          }, 100);
-          
-          console.log('PDF download initiated via blob');
-          return;
-        }
-      } catch (fetchError) {
-        console.log('Blob fetch failed, trying direct download:', fetchError);
+      const blob = await this.fetchPdfAsBlob();
+      if (blob) {
+        this.downloadBlob(blob, 'resume-25.pdf');
+        return;
       }
+    } catch (error) {
+      console.log('Blob download failed:', error);
+    }
 
-      // Method 2: Direct download with original URL
+    // Method 2: Try to redirect through a temporary URL
+    try {
+      // Create a link that forces download without extension interference
       const link = document.createElement('a');
       link.href = this.resumePdfUrl;
       link.download = 'resume-25.pdf';
-      link.setAttribute('download', 'resume-25.pdf');
       link.style.display = 'none';
       
+      // Add to DOM, click, and remove quickly
       document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
       
-      console.log('PDF download initiated via direct link');
+      // Use setTimeout to ensure the click happens after DOM update
+      setTimeout(() => {
+        link.click();
+        setTimeout(() => {
+          document.body.removeChild(link);
+        }, 100);
+      }, 10);
+      
+      console.log('Direct link download attempted');
     } catch (error) {
-      console.error('All download methods failed:', error);
+      console.log('Direct link failed:', error);
       // Final fallback
       window.open(this.resumePdfUrl, '_blank');
     }
+  }
+
+  private async fetchPdfAsBlob(): Promise<Blob | null> {
+    return new Promise((resolve) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('GET', this.resumePdfUrl, true);
+      xhr.responseType = 'blob';
+      
+      xhr.onload = () => {
+        if (xhr.status === 200) {
+          console.log('PDF blob received, size:', xhr.response.size);
+          resolve(xhr.response);
+        } else {
+          console.log('Failed to fetch PDF, status:', xhr.status);
+          resolve(null);
+        }
+      };
+      
+      xhr.onerror = () => {
+        console.log('XHR error occurred');
+        resolve(null);
+      };
+      
+      xhr.send();
+    });
+  }
+
+  private downloadBlob(blob: Blob, filename: string) {
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.style.display = 'none';
+    
+    document.body.appendChild(link);
+    link.click();
+    
+    // Clean up
+    setTimeout(() => {
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    }, 100);
+    
+    console.log('Blob download completed');
   }
 }
