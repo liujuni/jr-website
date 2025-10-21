@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';
+import { RouterModule, Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-home',
@@ -204,7 +205,7 @@ import { RouterModule, Router } from '@angular/router';
     }
   `]
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit, OnDestroy {
   readonly profilePictures = [
     'https://website-juniorliu.s3.us-east-2.amazonaws.com/res/jr1.jpg',
     'https://website-juniorliu.s3.us-east-2.amazonaws.com/res/jr2.jpg',
@@ -218,8 +219,34 @@ export class HomeComponent {
   readonly tennisIconUrl = 'https://website-juniorliu.s3.us-east-2.amazonaws.com/res/RF.jpg';
   
   currentProfileIndex = 0;
+  private navigationTimeout: any;
+  private isNavigating = false;
   
   constructor(private router: Router) {}
+  
+  ngOnInit() {
+    // Listen for navigation events to reset state
+    this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe(() => {
+        // Reset navigation state when returning to page
+        this.isNavigating = false;
+        if (this.navigationTimeout) {
+          clearTimeout(this.navigationTimeout);
+          this.navigationTimeout = null;
+        }
+        // Remove any remaining animation classes
+        document.querySelectorAll('.nav-icon.animating').forEach(el => {
+          el.classList.remove('animating');
+        });
+      });
+  }
+  
+  ngOnDestroy() {
+    if (this.navigationTimeout) {
+      clearTimeout(this.navigationTimeout);
+    }
+  }
   
   get currentProfilePicture(): string {
     return this.profilePictures[this.currentProfileIndex];
@@ -230,9 +257,16 @@ export class HomeComponent {
   }
   
   navigateWithAnimation(url: string, isExternal: boolean, event?: Event) {
+    // Prevent multiple navigation attempts
+    if (this.isNavigating) {
+      return;
+    }
+    
     if (event) {
       event.preventDefault();
     }
+    
+    this.isNavigating = true;
     
     // Get the clicked element to add animation class
     const target = event?.currentTarget as HTMLElement;
@@ -249,12 +283,18 @@ export class HomeComponent {
     }
     
     // Navigate after animation starts (1.5 second delay to ensure animation is visible)
-    setTimeout(() => {
+    this.navigationTimeout = setTimeout(() => {
       if (isExternal) {
-        window.open(url, '_blank');
+        // For external links, try multiple approaches
+        const newWindow = window.open(url, '_blank', 'noopener,noreferrer');
+        if (!newWindow) {
+          // Fallback if popup is blocked
+          window.location.href = url;
+        }
       } else {
         this.router.navigate([url]);
       }
+      this.isNavigating = false;
     }, 1500);
   }
 }
