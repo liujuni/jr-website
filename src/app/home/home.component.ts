@@ -11,7 +11,7 @@ import { filter } from 'rxjs/operators';
     <div class="home-container">
       <div class="profile-container" (click)="nextProfilePicture()">
         <div class="click-hint">
-          <span class="finger-point">👆</span>
+          <span class="finger-point">👈</span>
           <span class="click-text">Click me!</span>
         </div>
         <img 
@@ -60,15 +60,15 @@ import { filter } from 'rxjs/operators';
       transition: transform 0.3s ease;
       margin: 0;
       padding: 0;
-      transform: translateY(-20px);
+      transform: translateY(-40px);
       position: relative;
     }
     
     .click-hint {
       position: absolute;
-      top: -60px;
-      left: 50%;
-      transform: translateX(-50%);
+      top: 50%;
+      right: -100px;
+      transform: translateY(-50%);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -78,7 +78,7 @@ import { filter } from 'rxjs/operators';
     
     .finger-point {
       font-size: 24px;
-      animation: pointDown 2s ease-in-out infinite;
+      animation: pointLeft 2s ease-in-out infinite;
     }
     
     .click-text {
@@ -90,17 +90,17 @@ import { filter } from 'rxjs/operators';
       border-radius: 4px;
     }
     
-    @keyframes pointDown {
+    @keyframes pointLeft {
       0%, 100% {
-        transform: translateY(0px);
+        transform: translateX(0px);
       }
       50% {
-        transform: translateY(5px);
+        transform: translateX(-5px);
       }
     }
     
     .profile-container:hover {
-      transform: translateY(-20px) scale(1.05);
+      transform: translateY(-40px) scale(1.05);
     }
     
     .profile-image {
@@ -118,7 +118,7 @@ import { filter } from 'rxjs/operators';
       display: flex;
       gap: 4rem;
       margin-top: 3rem;
-      transform: translateY(-20px);
+      transform: translateY(-60px);
     }
     
     .nav-icon {
@@ -176,6 +176,10 @@ import { filter } from 'rxjs/operators';
         max-height: 680px;
       }
       
+      .click-hint {
+        right: -80px;
+      }
+      
       .navigation-icons {
         gap: 1.2rem;
         flex-wrap: nowrap;
@@ -204,6 +208,10 @@ import { filter } from 'rxjs/operators';
       .profile-image {
         max-width: 544px;
         max-height: 544px;
+      }
+      
+      .click-hint {
+        right: -60px;
       }
       
       .navigation-icons {
