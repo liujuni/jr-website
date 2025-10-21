@@ -11,7 +11,7 @@ import { filter } from 'rxjs/operators';
     <div class="home-container">
       <div class="profile-container" #profileContainer>
         <div class="click-hint">
-          <span class="finger-point">👈</span>
+          <span class="finger-point">👇</span>
           <span class="click-text">Click me!</span>
         </div>
         <img 
@@ -83,9 +83,9 @@ import { filter } from 'rxjs/operators';
     
     .click-hint {
       position: absolute;
-      top: 50%;
-      right: 60px;
-      transform: translateY(-50%);
+      top: 85px;
+      left: 50%;
+      transform: translateX(-50%);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -95,7 +95,7 @@ import { filter } from 'rxjs/operators';
     
     .finger-point {
       font-size: 24px;
-      animation: pointLeft 2s ease-in-out infinite;
+      animation: pointDown 2s ease-in-out infinite;
     }
     
     .click-text {
@@ -107,12 +107,12 @@ import { filter } from 'rxjs/operators';
       border-radius: 4px;
     }
     
-    @keyframes pointLeft {
+    @keyframes pointDown {
       0%, 100% {
-        transform: translateX(0px);
+        transform: translateY(0px);
       }
       50% {
-        transform: translateX(-5px);
+        transform: translateY(5px);
       }
     }
     
@@ -207,9 +207,6 @@ import { filter } from 'rxjs/operators';
         height: 465px;
       }
       
-      .click-hint {
-        right: 80px;
-      }
       
       .navigation-icons {
         gap: 1.2rem;
@@ -250,9 +247,6 @@ import { filter } from 'rxjs/operators';
         height: 465px;
       }
       
-      .click-hint {
-        right: 100px;
-      }
       
       .navigation-icons {
         gap: 0.8rem;
@@ -308,11 +302,27 @@ export class HomeComponent implements OnInit, OnDestroy {
           clearTimeout(this.navigationTimeout);
           this.navigationTimeout = null;
         }
-        // Remove any remaining animation classes
+        // Remove any remaining animation classes from all icons
         document.querySelectorAll('.nav-icon.animating').forEach(el => {
           el.classList.remove('animating');
         });
+        // Also remove any hover-triggered animations that might still be active
+        document.querySelectorAll('.nav-icon').forEach(el => {
+          el.classList.remove('animating');
+        });
       });
+    
+    // Additional cleanup on component initialization to handle browser back button
+    setTimeout(() => {
+      this.isNavigating = false;
+      if (this.navigationTimeout) {
+        clearTimeout(this.navigationTimeout);
+        this.navigationTimeout = null;
+      }
+      document.querySelectorAll('.nav-icon.animating').forEach(el => {
+        el.classList.remove('animating');
+      });
+    }, 100);
   }
   
   ngOnDestroy() {
@@ -342,13 +352,14 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
   
   navigateWithAnimation(url: string, isExternal: boolean, event?: Event) {
-    // Prevent multiple navigation attempts
+    // Prevent multiple navigation attempts or running animation after back button return
     if (this.isNavigating) {
       return;
     }
     
     if (event) {
       event.preventDefault();
+      event.stopPropagation();
     }
     
     this.isNavigating = true;
@@ -358,12 +369,19 @@ export class HomeComponent implements OnInit, OnDestroy {
     const navIcon = target?.closest('.nav-icon') as HTMLElement || target;
     
     if (navIcon) {
-      // Add animation class
+      // Ensure no other animations are running and remove any existing animation classes
+      document.querySelectorAll('.nav-icon.animating').forEach(el => {
+        el.classList.remove('animating');
+      });
+      
+      // Add animation class to the specific icon being clicked
       navIcon.classList.add('animating');
       
       // Remove animation class after animation completes
       setTimeout(() => {
-        navIcon.classList.remove('animating');
+        if (navIcon && navIcon.classList.contains('animating')) {
+          navIcon.classList.remove('animating');
+        }
       }, 600); // Animation duration is 0.6s
     }
     
