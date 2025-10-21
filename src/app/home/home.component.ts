@@ -54,7 +54,7 @@ import { RouterModule } from '@angular/router';
       background: black;
       position: relative;
       overflow-x: hidden;
-      padding: 2rem 1rem;
+      padding: 2.5rem 1.5rem;
     }
     
     .profile-section {
@@ -82,10 +82,10 @@ import { RouterModule } from '@angular/router';
       position: relative;
       display: inline-block;
       background-image: url('https://website-juniorliu.s3.us-east-2.amazonaws.com/res/border1.jpg');
-      background-size: cover;
+      background-size: 110%;
       background-repeat: no-repeat;
       background-position: center;
-      padding: 70px;
+      padding: 90px;
       box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
       width: fit-content;
       height: fit-content;
@@ -137,12 +137,12 @@ import { RouterModule } from '@angular/router';
     
     @media (max-width: 768px) {
       .home-container {
-        padding: 1rem 0.5rem;
+        padding: 1.5rem 1rem;
       }
       
       .profile-frame {
-        background-size: cover;
-        padding: 50px;
+        background-size: 110%;
+        padding: 65px;
       }
       
       .profile-image {
@@ -169,12 +169,12 @@ import { RouterModule } from '@angular/router';
     
     @media (max-width: 480px) {
       .home-container {
-        padding: 0.5rem 0.25rem;
+        padding: 1rem 0.5rem;
       }
       
       .profile-frame {
-        background-size: cover;
-        padding: 40px;
+        background-size: 110%;
+        padding: 55px;
       }
       
       .profile-image {
