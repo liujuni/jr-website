@@ -66,10 +66,10 @@ import { filter } from 'rxjs/operators';
     .profile-frame {
       display: inline-block;
       background-image: url('https://website-juniorliu.s3.us-east-2.amazonaws.com/res/border2.png');
-      background-size: 115%;
+      background-size: 130%;
       background-repeat: no-repeat;
       background-position: center;
-      padding: 130px;
+      padding: 150px;
       box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
     }
     
@@ -139,8 +139,8 @@ import { filter } from 'rxjs/operators';
       }
       
       .profile-frame {
-        padding: 100px;
-        background-size: 115%;
+        padding: 115px;
+        background-size: 130%;
       }
       
       .profile-image {
@@ -174,8 +174,8 @@ import { filter } from 'rxjs/operators';
       }
       
       .profile-frame {
-        padding: 80px;
-        background-size: 115%;
+        padding: 92px;
+        background-size: 130%;
       }
       
       .profile-image {
