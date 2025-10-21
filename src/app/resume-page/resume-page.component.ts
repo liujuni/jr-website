@@ -288,44 +288,56 @@ export class ResumePageComponent implements OnInit {
   }
 
   async downloadPdf() {
-    // Try multiple methods to bypass Chrome extension interference
+    console.log('Starting PDF download, URL:', this.resumePdfUrl);
     
-    // Method 1: Direct XMLHttpRequest blob download (most reliable)
+    // Method 1: Try XMLHttpRequest blob download (should bypass extensions)
     try {
+      console.log('Attempting XMLHttpRequest blob download...');
       const blob = await this.fetchPdfAsBlob();
-      if (blob) {
+      if (blob && blob.size > 0) {
+        console.log('Blob download successful, size:', blob.size);
         this.downloadBlob(blob, 'resume-25.pdf');
         return;
+      } else {
+        console.log('Blob download failed - empty or invalid blob');
       }
     } catch (error) {
       console.log('Blob download failed:', error);
     }
 
-    // Method 2: Try to redirect through a temporary URL
+    // Method 2: Try using a different approach with window.location
     try {
-      // Create a link that forces download without extension interference
-      const link = document.createElement('a');
-      link.href = this.resumePdfUrl;
-      link.download = 'resume-25.pdf';
-      link.style.display = 'none';
+      console.log('Trying window.location approach...');
+      // Create a temporary input element to trigger download
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.value = this.resumePdfUrl;
       
-      // Add to DOM, click, and remove quickly
-      document.body.appendChild(link);
+      // Try setting location directly
+      const downloadFrame = document.createElement('iframe');
+      downloadFrame.style.display = 'none';
+      downloadFrame.style.width = '0';
+      downloadFrame.style.height = '0';
+      document.body.appendChild(downloadFrame);
       
-      // Use setTimeout to ensure the click happens after DOM update
+      // Try to set the iframe src to trigger download
+      downloadFrame.src = this.resumePdfUrl + '?download=1';
+      
+      // Clean up
       setTimeout(() => {
-        link.click();
-        setTimeout(() => {
-          document.body.removeChild(link);
-        }, 100);
-      }, 10);
+        if (document.body.contains(downloadFrame)) {
+          document.body.removeChild(downloadFrame);
+        }
+      }, 3000);
       
-      console.log('Direct link download attempted');
+      console.log('Iframe download method attempted');
     } catch (error) {
-      console.log('Direct link failed:', error);
-      // Final fallback
-      window.open(this.resumePdfUrl, '_blank');
+      console.log('Iframe method failed:', error);
     }
+
+    // Method 3: Show user guidance
+    console.log('All automatic methods failed. Extension is interfering.');
+    this.showDownloadInstructions();
   }
 
   private async fetchPdfAsBlob(): Promise<Blob | null> {
@@ -334,22 +346,41 @@ export class ResumePageComponent implements OnInit {
       xhr.open('GET', this.resumePdfUrl, true);
       xhr.responseType = 'blob';
       
+      // Add timeout
+      xhr.timeout = 10000; // 10 seconds
+      
       xhr.onload = () => {
-        if (xhr.status === 200) {
-          console.log('PDF blob received, size:', xhr.response.size);
+        console.log('XHR onload - status:', xhr.status, 'readyState:', xhr.readyState);
+        if (xhr.status === 200 && xhr.response instanceof Blob) {
+          console.log('PDF blob received, size:', xhr.response.size, 'type:', xhr.response.type);
           resolve(xhr.response);
         } else {
-          console.log('Failed to fetch PDF, status:', xhr.status);
+          console.log('Failed to fetch PDF - status:', xhr.status, 'response type:', typeof xhr.response);
           resolve(null);
         }
       };
       
-      xhr.onerror = () => {
-        console.log('XHR error occurred');
+      xhr.onerror = (event) => {
+        console.log('XHR error occurred:', event);
         resolve(null);
       };
       
-      xhr.send();
+      xhr.ontimeout = () => {
+        console.log('XHR timeout occurred');
+        resolve(null);
+      };
+      
+      xhr.onabort = () => {
+        console.log('XHR aborted');
+        resolve(null);
+      };
+      
+      try {
+        xhr.send();
+      } catch (error) {
+        console.log('XHR send failed:', error);
+        resolve(null);
+      }
     });
   }
 
@@ -370,5 +401,51 @@ export class ResumePageComponent implements OnInit {
     }, 100);
     
     console.log('Blob download completed');
+  }
+
+  private showDownloadInstructions() {
+    // Create a more user-friendly notification
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #333;
+      color: white;
+      padding: 20px;
+      border-radius: 8px;
+      z-index: 10000;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    `;
+    
+    notification.innerHTML = `
+      <h3 style="margin: 0 0 15px 0; color: #ffcc00;">Download Blocked by Extension</h3>
+      <p style="margin: 0 0 15px 0; font-size: 14px;">
+        Your PDF viewer extension is preventing automatic download.
+      </p>
+      <p style="margin: 0 0 20px 0; font-size: 14px;">
+        <strong>Solution:</strong> Right-click the "Download PDF" button and select "Save link as..."
+      </p>
+      <button onclick="this.parentElement.remove()" style="
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+      ">Got it</button>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Auto-remove after 10 seconds
+    setTimeout(() => {
+      if (document.body.contains(notification)) {
+        notification.remove();
+      }
+    }, 10000);
   }
 }
