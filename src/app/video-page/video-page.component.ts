@@ -105,9 +105,12 @@ export class VideoPageComponent implements OnInit, AfterViewInit {
   
   
   private addClickToPlayButton() {
+    // Remove any existing button first
+    this.removeClickToPlayOverlay();
+    
     // Add a click overlay to allow user to play the video
     const container = document.querySelector('.video-page-container');
-    if (container && !container.querySelector('.click-to-play') && !this.buttonAdded && !this.buttonDismissed) {
+    if (container && !this.buttonDismissed) {
       this.buttonAdded = true;
       const overlay = document.createElement('div');
       overlay.className = 'click-to-play';
@@ -132,11 +135,13 @@ export class VideoPageComponent implements OnInit, AfterViewInit {
         border: 2px solid rgba(255, 255, 255, 0.3);
       `;
       overlay.textContent = 'Tap to Play Video';
-      overlay.addEventListener('click', () => {
+      overlay.addEventListener('click', (e) => {
+        e.stopPropagation();
         this.playVideo();
       });
       overlay.addEventListener('touchstart', (e) => {
         e.preventDefault();
+        e.stopPropagation();
         this.playVideo();
       });
       container.appendChild(overlay);
@@ -145,18 +150,22 @@ export class VideoPageComponent implements OnInit, AfterViewInit {
   
   onVideoCanPlay() {
     // Show click to play button since autoplay is disabled
-    if (!this.buttonAdded && !this.buttonDismissed) {
+    const existingButton = document.querySelector('.click-to-play');
+    if (!existingButton && !this.buttonAdded && !this.buttonDismissed) {
       this.addClickToPlayButton();
     }
   }
 
   onVideoPlaying() {
-    // Button is already dismissed in playVideo(), just ensure it's removed
+    // Ensure button is removed when video starts playing
     this.removeClickToPlayOverlay();
   }
   
   onVideoEnd() {
-    this.router.navigate(['/index']);
+    // Small delay to ensure video fully completes
+    setTimeout(() => {
+      this.router.navigate(['/index']);
+    }, 100);
   }
   
   private playVideo() {
@@ -169,6 +178,7 @@ export class VideoPageComponent implements OnInit, AfterViewInit {
       
       // Remove muted to enable sound when user clicks play
       video.muted = false;
+      
       
       // Ensure video is ready for iOS
       if (video.readyState >= 2) {
@@ -204,10 +214,8 @@ export class VideoPageComponent implements OnInit, AfterViewInit {
   }
 
   private removeClickToPlayOverlay() {
-    const overlay = document.querySelector('.click-to-play');
-    if (overlay) {
-      overlay.remove();
-      this.buttonAdded = false;
-    }
+    const overlays = document.querySelectorAll('.click-to-play');
+    overlays.forEach(overlay => overlay.remove());
+    this.buttonAdded = false;
   }
 }

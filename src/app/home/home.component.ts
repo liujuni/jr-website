@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
@@ -9,7 +9,7 @@ import { filter } from 'rxjs/operators';
   imports: [CommonModule, RouterModule],
   template: `
     <div class="home-container">
-      <div class="profile-container" (click)="nextProfilePicture()">
+      <div class="profile-container" #profileContainer>
         <div class="click-hint">
           <span class="finger-point">👈</span>
           <span class="click-text">Click me!</span>
@@ -18,6 +18,10 @@ import { filter } from 'rxjs/operators';
           [src]="currentProfilePicture" 
           [alt]="'Profile Picture ' + (currentProfileIndex + 1)"
           class="profile-image">
+        <div class="invisible-click-area" 
+             (click)="nextProfilePicture()"
+             (mouseenter)="onProfileAreaEnter()"
+             (mouseleave)="onProfileAreaLeave()"></div>
       </div>
       
       <div class="navigation-icons">
@@ -50,24 +54,37 @@ import { filter } from 'rxjs/operators';
       flex-direction: column;
       align-items: center;
       justify-content: flex-start;
-      background: black;
-      overflow-x: hidden;
-      padding: 0 2rem 0;
+      background: rgba(14, 7, 19);
+      overflow: visible;
+      padding: 50px 0 0 0;
+      margin: 0;
+      position: relative;
     }
     
     .profile-container {
-      cursor: pointer;
-      transition: transform 0.3s ease;
-      margin: 0;
+      transition: all 0.3s ease;
+      margin: -50px 2rem 0 !important;
       padding: 0;
-      transform: translateY(-40px);
       position: relative;
+      background: rgba(14, 7, 19);
+    }
+    
+    .invisible-click-area {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 264px;
+      height: 352px;
+      transform: translate(-50%, -50%);
+      background: transparent;
+      cursor: pointer;
+      z-index: 5;
     }
     
     .click-hint {
       position: absolute;
       top: 50%;
-      right: -100px;
+      right: 60px;
       transform: translateY(-50%);
       display: flex;
       flex-direction: column;
@@ -99,26 +116,31 @@ import { filter } from 'rxjs/operators';
       }
     }
     
-    .profile-container:hover {
-      transform: translateY(-40px) scale(1.05);
+    .profile-container.hovering {
+      transform: scale(1.05) !important;
+      margin: -50px 2rem 0 !important;
     }
     
     .profile-image {
-      max-width: 832px;
-      max-height: 832px;
+      max-width: 1331px;
+      max-height: 1331px;
       width: auto;
       height: auto;
       object-fit: contain;
+      object-position: center;
       display: block;
       margin: 0 auto;
       box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+      background: rgba(14, 7, 19);
+      border: none;
+      outline: none;
     }
     
     .navigation-icons {
       display: flex;
       gap: 4rem;
-      margin-top: 3rem;
-      transform: translateY(-60px);
+      margin: 3rem 2rem 0;
+      transform: translateY(-100px);
     }
     
     .nav-icon {
@@ -167,17 +189,26 @@ import { filter } from 'rxjs/operators';
     }
     
     @media (max-width: 768px) {
-      .home-container {
-        padding: 0 1rem 0;
+      .profile-container {
+        margin: -50px 1rem 0 !important;
+      }
+      
+      .navigation-icons {
+        margin: 3rem 1rem 0;
       }
       
       .profile-image {
-        max-width: 680px;
-        max-height: 680px;
+        max-width: 1088px;
+        max-height: 1088px;
+      }
+      
+      .invisible-click-area {
+        width: 264px;
+        height: 352px;
       }
       
       .click-hint {
-        right: -80px;
+        right: 80px;
       }
       
       .navigation-icons {
@@ -201,17 +232,26 @@ import { filter } from 'rxjs/operators';
     }
     
     @media (max-width: 480px) {
-      .home-container {
-        padding: 0 0.5rem 0;
+      .profile-container {
+        margin: -50px 0.5rem 0 !important;
+      }
+      
+      .navigation-icons {
+        margin: 3rem 0.5rem 0;
       }
       
       .profile-image {
-        max-width: 544px;
-        max-height: 544px;
+        max-width: 870px;
+        max-height: 870px;
+      }
+      
+      .invisible-click-area {
+        width: 264px;
+        height: 352px;
       }
       
       .click-hint {
-        right: -60px;
+        right: 100px;
       }
       
       .navigation-icons {
@@ -237,6 +277,8 @@ import { filter } from 'rxjs/operators';
   `]
 })
 export class HomeComponent implements OnInit, OnDestroy {
+  @ViewChild('profileContainer') profileContainer!: ElementRef<HTMLDivElement>;
+  
   readonly profilePictures = [
     'https://website-juniorliu.s3.us-east-2.amazonaws.com/res/pic1.jpg',
     'https://website-juniorliu.s3.us-east-2.amazonaws.com/res/pic2.jpg',
@@ -285,6 +327,18 @@ export class HomeComponent implements OnInit, OnDestroy {
   
   nextProfilePicture() {
     this.currentProfileIndex = (this.currentProfileIndex + 1) % this.profilePictures.length;
+  }
+  
+  onProfileAreaEnter() {
+    if (this.profileContainer) {
+      this.profileContainer.nativeElement.classList.add('hovering');
+    }
+  }
+  
+  onProfileAreaLeave() {
+    if (this.profileContainer) {
+      this.profileContainer.nativeElement.classList.remove('hovering');
+    }
   }
   
   navigateWithAnimation(url: string, isExternal: boolean, event?: Event) {
