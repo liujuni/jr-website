@@ -370,6 +370,11 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
   
+  private isMobileDevice(): boolean {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+           (typeof window !== 'undefined' && window.innerWidth <= 768);
+  }
+
   navigateWithAnimation(url: string, isExternal: boolean, event?: Event) {
     // Prevent multiple navigation attempts or running animation after back button return
     if (this.isNavigating) {
@@ -413,29 +418,48 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
       // CRITICAL: For external links (LinkedIn, MJClub), NEVER navigate current tab
       // Only open in new tab - current tab MUST stay on index.html
       
-      // Open in new tab immediately to preserve user action context for popup blockers
       this.pendingExternalUrl = url;
-      this.pendingWindow = window.open(url, '_blank', 'noopener,noreferrer');
       
+      // Wait for animation to complete before opening external link
       this.navigationTimeout = setTimeout(() => {
-        // After 1.5 seconds, ensure the window is focused but NEVER navigate current tab
-        if (this.pendingWindow && !this.pendingWindow.closed) {
-          try {
-            this.pendingWindow.focus();
-          } catch (e) {
-            // Some browsers block focus, that's okay - current tab stays on index.html
-          }
-        } else if (this.pendingExternalUrl) {
-          // If the window was blocked, try alternative approach - STILL ONLY NEW TAB
+        const isMobile = this.isMobileDevice();
+        
+        if (isMobile) {
+          // Mobile-specific handling - more reliable approach
           const tempLink = document.createElement('a');
-          tempLink.href = this.pendingExternalUrl;
-          tempLink.target = '_blank';  // CRITICAL: Always '_blank' for new tab
+          tempLink.href = url;
+          tempLink.target = '_blank';
           tempLink.rel = 'noopener noreferrer';
+          tempLink.style.display = 'none';
           document.body.appendChild(tempLink);
+          
+          // Use direct click for mobile - more reliable than window.open
           tempLink.click();
           document.body.removeChild(tempLink);
-          // Current tab remains unchanged on index.html
+        } else {
+          // Desktop handling
+          this.pendingWindow = window.open(url, '_blank', 'noopener,noreferrer');
+          
+          // Check if window.open was blocked
+          if (!this.pendingWindow || this.pendingWindow.closed) {
+            // Fallback for desktop if blocked
+            const tempLink = document.createElement('a');
+            tempLink.href = url;
+            tempLink.target = '_blank';
+            tempLink.rel = 'noopener noreferrer';
+            document.body.appendChild(tempLink);
+            tempLink.click();
+            document.body.removeChild(tempLink);
+          } else {
+            // Window opened successfully, try to focus it
+            try {
+              this.pendingWindow.focus();
+            } catch (e) {
+              // Some browsers block focus, that's okay
+            }
+          }
         }
+        
         // Reset state - current tab stays on index.html
         this.isNavigating = false;
         this.pendingExternalUrl = null;
