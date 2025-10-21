@@ -17,7 +17,8 @@ import { filter } from 'rxjs/operators';
         <img 
           [src]="currentProfilePicture" 
           [alt]="'Profile Picture ' + (currentProfileIndex + 1)"
-          class="profile-image">
+          class="profile-image"
+          #profileImage>
         <div class="invisible-click-area" 
              (click)="nextProfilePicture()"
              (mouseenter)="onProfileAreaEnter()"
@@ -134,6 +135,14 @@ import { filter } from 'rxjs/operators';
       background: rgba(14, 7, 19);
       border: none;
       outline: none;
+      transition: transform 0.3s ease;
+    }
+    
+    /* Mobile: scale/zoom effect for profile picture click */
+    @media (max-width: 768px) {
+      .profile-image.animating {
+        transform: scale(1.1);
+      }
     }
     
     .navigation-icons {
@@ -226,6 +235,12 @@ import { filter } from 'rxjs/operators';
         max-height: 1197px;
       }
       
+      /* Disable profile hover effect on mobile */
+      .profile-container.hovering {
+        transform: none !important;
+        margin: -100px 1rem 0 !important;
+      }
+      
       .invisible-click-area {
         width: 350px;
         height: 465px;
@@ -284,6 +299,7 @@ import { filter } from 'rxjs/operators';
 })
 export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('profileContainer') profileContainer!: ElementRef<HTMLDivElement>;
+  @ViewChild('profileImage') profileImage!: ElementRef<HTMLImageElement>;
   
   readonly profilePictures = [
     'https://website-juniorliu.s3.us-east-2.amazonaws.com/res/pic1.jpg',
@@ -300,6 +316,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   currentProfileIndex = 0;
   private navigationTimeout: any;
   private animationTimeout: any;
+  private profileAnimationTimeout: any;
   private isNavigating = false;
   
   constructor(private router: Router) {}
@@ -331,7 +348,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     this.isNavigating = false;
     this.clearTimeouts();
     
-    // Reset animation states
+    // Reset animation states for navigation icons
     document.querySelectorAll('.nav-icon').forEach(navIcon => {
       navIcon.classList.remove('animating');
       
@@ -342,6 +359,18 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
       element.style.animation = '';
       element.style.transform = '';
     });
+    
+    // Reset animation states for profile image
+    if (this.profileImage) {
+      this.profileImage.nativeElement.classList.remove('animating');
+      
+      const element = this.profileImage.nativeElement;
+      element.style.animation = 'none';
+      element.style.transform = '';
+      element.offsetHeight; // Trigger reflow
+      element.style.animation = '';
+      element.style.transform = '';
+    }
   }
 
   private scrollToTop() {
@@ -363,6 +392,10 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
       clearTimeout(this.animationTimeout);
       this.animationTimeout = null;
     }
+    if (this.profileAnimationTimeout) {
+      clearTimeout(this.profileAnimationTimeout);
+      this.profileAnimationTimeout = null;
+    }
   }
   
   get currentProfilePicture(): string {
@@ -372,9 +405,24 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   nextProfilePicture() {
     this.currentProfileIndex = (this.currentProfileIndex + 1) % this.profilePictures.length;
     
-    // Remove hovering state on mobile after click (simulate leaving the area)
+    // Handle mobile animation and remove hovering state
     if (this.isMobile()) {
       this.onProfileAreaLeave();
+      
+      // Add scale animation to profile image
+      if (this.profileImage) {
+        // Clear any existing animation
+        if (this.profileAnimationTimeout) {
+          clearTimeout(this.profileAnimationTimeout);
+        }
+        
+        this.profileImage.nativeElement.classList.add('animating');
+        
+        this.profileAnimationTimeout = setTimeout(() => {
+          this.profileImage?.nativeElement.classList.remove('animating');
+          this.profileAnimationTimeout = null;
+        }, 300);
+      }
     }
   }
   
