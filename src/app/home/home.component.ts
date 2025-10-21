@@ -51,13 +51,10 @@ import { RouterModule } from '@angular/router';
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      background-image: url('https://website-juniorliu.s3.us-east-2.amazonaws.com/res/bg3.jpg');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
+      background: black;
       position: relative;
       overflow-x: hidden;
-      padding: 3rem 2rem;
+      padding: 2rem 1rem;
     }
     
     .profile-section {
@@ -88,21 +85,20 @@ import { RouterModule } from '@angular/router';
       background-size: cover;
       background-repeat: no-repeat;
       background-position: center;
-      padding: 120px;
+      padding: 70px;
       box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
       width: fit-content;
       height: fit-content;
-      min-width: 500px;
-      min-height: 500px;
     }
     
     .profile-image {
-      max-width: 480px;
-      max-height: 480px;
+      max-width: 360px;
+      max-height: 360px;
       width: auto;
       height: auto;
       object-fit: contain;
       display: block;
+      margin: 0 auto;
     }
     
     .navigation-icons {
@@ -141,19 +137,17 @@ import { RouterModule } from '@angular/router';
     
     @media (max-width: 768px) {
       .home-container {
-        padding: 2rem 1rem;
+        padding: 1rem 0.5rem;
       }
       
       .profile-frame {
         background-size: cover;
-        padding: 80px;
-        min-width: 400px;
-        min-height: 400px;
+        padding: 50px;
       }
       
       .profile-image {
-        max-width: 400px;
-        max-height: 400px;
+        max-width: 300px;
+        max-height: 300px;
       }
       
       .navigation-icons {
@@ -175,19 +169,17 @@ import { RouterModule } from '@angular/router';
     
     @media (max-width: 480px) {
       .home-container {
-        padding: 1rem 0.5rem;
+        padding: 0.5rem 0.25rem;
       }
       
       .profile-frame {
         background-size: cover;
-        padding: 60px;
-        min-width: 320px;
-        min-height: 320px;
+        padding: 40px;
       }
       
       .profile-image {
-        max-width: 320px;
-        max-height: 320px;
+        max-width: 250px;
+        max-height: 250px;
       }
       
       .navigation-icons {
