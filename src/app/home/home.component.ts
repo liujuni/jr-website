@@ -284,6 +284,8 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   currentProfileIndex = 0;
   private navigationTimeout: any;
   private isNavigating = false;
+  private pendingExternalUrl: string | null = null;
+  private pendingWindow: Window | null = null;
   
   constructor(private router: Router) {}
   
@@ -296,9 +298,17 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
         this.scrollToTop();
       });
     
-    // Initial cleanup to handle browser back button
+    // Initial cleanup to handle browser back button and prevent animation replay
     setTimeout(() => {
       this.resetNavigationState();
+      // Remove any lingering animation classes and reset all nav icons
+      document.querySelectorAll('.nav-icon').forEach(el => {
+        el.classList.remove('animating');
+        // Force a style recalculation to ensure no visual artifacts
+        (el as HTMLElement).style.animation = 'none';
+        (el as HTMLElement).offsetHeight; // Trigger reflow
+        (el as HTMLElement).style.animation = '';
+      });
     }, 100);
   }
 
@@ -309,13 +319,19 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private resetNavigationState() {
     this.isNavigating = false;
+    this.pendingExternalUrl = null;
+    this.pendingWindow = null;
     if (this.navigationTimeout) {
       clearTimeout(this.navigationTimeout);
       this.navigationTimeout = null;
     }
-    // Remove all animation classes from nav icons
-    document.querySelectorAll('.nav-icon.animating').forEach(el => {
+    // Remove all animation classes from nav icons and reset any visual state
+    document.querySelectorAll('.nav-icon').forEach(el => {
       el.classList.remove('animating');
+      // Force reset of any ongoing animations
+      (el as HTMLElement).style.animation = 'none';
+      (el as HTMLElement).offsetHeight; // Trigger reflow
+      (el as HTMLElement).style.animation = '';
     });
   }
 
@@ -330,6 +346,8 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     if (this.navigationTimeout) {
       clearTimeout(this.navigationTimeout);
     }
+    this.pendingExternalUrl = null;
+    this.pendingWindow = null;
   }
   
   get currentProfilePicture(): string {
@@ -361,6 +379,13 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     if (event) {
       event.preventDefault();
       event.stopPropagation();
+      event.stopImmediatePropagation();
+      
+      // For external links, ensure absolutely no navigation of current tab
+      if (isExternal) {
+        event.returnValue = false;
+        // Continue execution but ensure no navigation happens in current tab
+      }
     }
     
     this.isNavigating = true;
@@ -384,23 +409,41 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
       }, 600); // Animation duration is 0.6s
     }
     
-    // Handle external links immediately to preserve user action context
-    // but still allow animation to play
     if (isExternal) {
-      // Open in new tab immediately (while user action is still in context)
-      const newWindow = window.open(url, '_blank', 'noopener,noreferrer');
-      if (newWindow) {
-        // Focus the new window if possible
-        try {
-          newWindow.focus();
-        } catch (e) {
-          // Some browsers block focus, that's okay
-        }
-      }
-      // Reset navigation state after animation delay
+      // CRITICAL: For external links (LinkedIn, MJClub), NEVER navigate current tab
+      // Only open in new tab - current tab MUST stay on index.html
+      
+      // Open in new tab immediately to preserve user action context for popup blockers
+      this.pendingExternalUrl = url;
+      this.pendingWindow = window.open(url, '_blank', 'noopener,noreferrer');
+      
       this.navigationTimeout = setTimeout(() => {
+        // After 1.5 seconds, ensure the window is focused but NEVER navigate current tab
+        if (this.pendingWindow && !this.pendingWindow.closed) {
+          try {
+            this.pendingWindow.focus();
+          } catch (e) {
+            // Some browsers block focus, that's okay - current tab stays on index.html
+          }
+        } else if (this.pendingExternalUrl) {
+          // If the window was blocked, try alternative approach - STILL ONLY NEW TAB
+          const tempLink = document.createElement('a');
+          tempLink.href = this.pendingExternalUrl;
+          tempLink.target = '_blank';  // CRITICAL: Always '_blank' for new tab
+          tempLink.rel = 'noopener noreferrer';
+          document.body.appendChild(tempLink);
+          tempLink.click();
+          document.body.removeChild(tempLink);
+          // Current tab remains unchanged on index.html
+        }
+        // Reset state - current tab stays on index.html
         this.isNavigating = false;
+        this.pendingExternalUrl = null;
+        this.pendingWindow = null;
       }, 1500);
+      
+      // Explicitly return here to ensure no further navigation logic runs for external links
+      return;
     } else {
       // For internal links, navigate after animation completes
       this.navigationTimeout = setTimeout(() => {
