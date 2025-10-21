@@ -162,8 +162,24 @@ import { filter } from 'rxjs/operators';
       animation: doubleJump 0.6s ease-in-out;
     }
     
+    /* Disable hover animation on mobile */
+    @media (max-width: 768px) {
+      .nav-icon:hover {
+        border-color: rgba(255, 255, 255, 0.6);
+        animation: none;
+      }
+    }
+    
+    /* Desktop: no click animation (only hover) */
     .nav-icon.animating {
-      animation: doubleJump 0.6s ease-in-out;
+      animation: none;
+    }
+    
+    /* Mobile: single jump animation for click */
+    @media (max-width: 768px) {
+      .nav-icon.animating {
+        animation: singleJump 0.4s ease-in-out;
+      }
     }
     
     @keyframes doubleJump {
@@ -178,6 +194,18 @@ import { filter } from 'rxjs/operators';
       }
       75% {
         transform: translateY(-10px);
+      }
+      100% {
+        transform: translateY(0px);
+      }
+    }
+    
+    @keyframes singleJump {
+      0% {
+        transform: translateY(0px);
+      }
+      50% {
+        transform: translateY(-8px);
       }
       100% {
         transform: translateY(0px);
@@ -293,6 +321,9 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe(() => {
+        // Immediate reset to prevent any erroneous animations
+        this.resetNavigationState();
+        
         // Add small delay to ensure DOM is fully updated after navigation
         setTimeout(() => {
           this.resetNavigationState();
@@ -327,7 +358,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     
     // More thorough cleanup for browser back button - force reset all animation states
     document.querySelectorAll('.nav-icon').forEach(navIcon => {
-      // Remove animating class
+      // Remove animating class immediately
       navIcon.classList.remove('animating');
       
       // Force reset any lingering CSS animation states
@@ -338,8 +369,9 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
       // Trigger reflow to ensure style reset
       element.offsetHeight;
       
-      // Reset animation property
+      // Reset animation property to empty string (not original value)
       element.style.animation = '';
+      element.style.transform = '';
     });
   }
 
@@ -380,7 +412,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   }
   
   navigateWithAnimation(url: string, isExternal: boolean, event?: Event) {
-    // Prevent multiple navigation attempts or running animation after back button return
+    // Prevent multiple navigation attempts
     if (this.isNavigating) {
       return;
     }
@@ -390,66 +422,65 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
       event.stopPropagation();
       event.stopImmediatePropagation();
       
-      // For external links, ensure absolutely no navigation of current tab
       if (isExternal) {
         event.returnValue = false;
-        // Continue execution but ensure no navigation happens in current tab
       }
     }
     
     this.isNavigating = true;
     
+    // Clear any existing navigation timeout
+    if (this.navigationTimeout) {
+      clearTimeout(this.navigationTimeout);
+      this.navigationTimeout = null;
+    }
+    
     // Get the clicked element to add animation class
     const target = event?.currentTarget as HTMLElement;
     const navIcon = target?.closest('.nav-icon') as HTMLElement || target;
+    const isMobileDevice = this.isMobile();
     
-    if (navIcon) {
+    // Add animation class only for mobile devices when icon is clicked
+    if (navIcon && isMobileDevice) {
       // Clear any existing animations first
       document.querySelectorAll('.nav-icon.animating').forEach(el => {
         el.classList.remove('animating');
       });
       
-      // Add animation class to the specific icon being clicked
+      // Add animation class to the specific icon being clicked (mobile only)
       navIcon.classList.add('animating');
       
-      // Remove animation class after animation completes (store timeout to clear on navigation)
+      // Remove animation class after animation completes (400ms for singleJump)
       this.animationTimeout = setTimeout(() => {
         navIcon?.classList.remove('animating');
         this.animationTimeout = null;
-      }, 600); // Animation duration is 0.6s
+      }, 400);
     }
     
     if (isExternal) {
-      const isMobileDevice = this.isMobile();
-      
-      // For external links on mobile, use redirect page approach to avoid popup blocker
-      if (isMobileDevice && (url.includes('linkedin.com') || url.includes('seattlemj.com'))) {
-        // Navigate immediately to preserve user action context, animation will continue
-        setTimeout(() => {
-          if (url.includes('linkedin.com')) {
-            this.router.navigate(['/linkedin']);
-          } else if (url.includes('seattlemj.com')) {
-            this.router.navigate(['/mjclub']);
-          }
-          this.isNavigating = false;
-        }, 10); // Minimal delay to ensure animation starts
-      } else {
-        // For desktop or mobile with other external links, use direct window.open after delay
-        const delay = isMobileDevice ? 1000 : 600; // Desktop: animation duration (0.6s), Mobile: 1s
+      if (isMobileDevice) {
+        // For external links on mobile, add 300ms delay
         this.navigationTimeout = setTimeout(() => {
           window.open(url, '_blank', 'noopener,noreferrer');
           this.isNavigating = false;
-        }, delay);
+        }, 300);
+      } else {
+        // For external links on desktop, open immediately
+        window.open(url, '_blank', 'noopener,noreferrer');
+        this.isNavigating = false;
       }
-      
-      return;
     } else {
-      // For internal links, navigate after animation completes
-      const delay = this.isMobile() ? 1000 : 600; // Mobile: 1s, Desktop: animation duration (0.6s)
-      this.navigationTimeout = setTimeout(() => {
+      if (isMobileDevice) {
+        // For internal links on mobile, add 300ms delay
+        this.navigationTimeout = setTimeout(() => {
+          this.router.navigate([url]);
+          this.isNavigating = false;
+        }, 300);
+      } else {
+        // For internal links on desktop, navigate immediately
         this.router.navigate([url]);
         this.isNavigating = false;
-      }, delay);
+      }
     }
   }
 
