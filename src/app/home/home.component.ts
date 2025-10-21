@@ -248,13 +248,13 @@ export class HomeComponent {
       }, 600); // Animation duration is 0.6s
     }
     
-    // Navigate after animation starts (small delay to ensure animation is visible)
+    // Navigate after animation starts (1.5 second delay to ensure animation is visible)
     setTimeout(() => {
       if (isExternal) {
         window.open(url, '_blank');
       } else {
         this.router.navigate([url]);
       }
-    }, 100);
+    }, 1500);
   }
 }
