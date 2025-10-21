@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
@@ -222,7 +222,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
     }
   `]
 })
-export class ResumePageComponent implements OnInit {
+export class ResumePageComponent implements OnInit, AfterViewInit {
   readonly resumePdfUrl = 'https://website-juniorliu.s3.us-east-2.amazonaws.com/res/resume-25.pdf';
   safePdfUrl: SafeResourceUrl;
   showFallback = false;
@@ -234,6 +234,8 @@ export class ResumePageComponent implements OnInit {
   }
   
   ngOnInit() {
+    this.scrollToTop();
+    
     // Check if PDF can be displayed
     setTimeout(() => {
       this.checkPdfSupport();
@@ -243,6 +245,17 @@ export class ResumePageComponent implements OnInit {
     setTimeout(() => {
       this.testPdfLoad();
     }, 3000);
+  }
+
+  ngAfterViewInit() {
+    this.scrollToTop();
+  }
+
+  private scrollToTop() {
+    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+    // Fallback for older browsers or mobile
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
   }
   
   private checkPdfSupport() {

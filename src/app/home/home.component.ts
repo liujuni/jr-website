@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
@@ -141,6 +141,7 @@ import { filter } from 'rxjs/operators';
       gap: 4rem;
       margin: 3rem 2rem 0;
       transform: translateY(-110px);
+      padding: 20px 0;
     }
     
     .nav-icon {
@@ -195,6 +196,7 @@ import { filter } from 'rxjs/operators';
       
       .navigation-icons {
         margin: 3rem 1rem 0;
+        padding: 20px 0;
       }
       
       .profile-image {
@@ -235,16 +237,17 @@ import { filter } from 'rxjs/operators';
       
       .navigation-icons {
         margin: 3rem 0.5rem 0;
+        padding: 20px 0;
       }
       
       .profile-image {
-        max-width: 957px;
-        max-height: 957px;
+        max-width: 861px;
+        max-height: 861px;
       }
       
       .invisible-click-area {
-        width: 350px;
-        height: 465px;
+        width: 315px;
+        height: 419px;
       }
       
       
@@ -270,7 +273,7 @@ import { filter } from 'rxjs/operators';
     }
   `]
 })
-export class HomeComponent implements OnInit, OnDestroy {
+export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('profileContainer') profileContainer!: ElementRef<HTMLDivElement>;
   
   readonly profilePictures = [
@@ -292,6 +295,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   constructor(private router: Router) {}
   
   ngOnInit() {
+    // Scroll to top when component loads
+    this.scrollToTop();
+    
     // Listen for navigation events to reset state
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
@@ -310,6 +316,8 @@ export class HomeComponent implements OnInit, OnDestroy {
         document.querySelectorAll('.nav-icon').forEach(el => {
           el.classList.remove('animating');
         });
+        // Scroll to top on navigation
+        this.scrollToTop();
       });
     
     // Additional cleanup on component initialization to handle browser back button
@@ -323,6 +331,18 @@ export class HomeComponent implements OnInit, OnDestroy {
         el.classList.remove('animating');
       });
     }, 100);
+  }
+
+  ngAfterViewInit() {
+    // Ensure scroll to top after view is initialized
+    this.scrollToTop();
+  }
+
+  private scrollToTop() {
+    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+    // Fallback for older browsers or mobile
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
   }
   
   ngOnDestroy() {

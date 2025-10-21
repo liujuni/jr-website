@@ -70,6 +70,9 @@ export class VideoPageComponent implements OnInit, AfterViewInit {
   constructor(private router: Router) {}
   
   ngOnInit() {
+    // Scroll to top when component loads
+    this.scrollToTop();
+    
     // Reset video state when component initializes
     this.buttonAdded = false;
     this.buttonDismissed = false;
@@ -81,10 +84,20 @@ export class VideoPageComponent implements OnInit, AfterViewInit {
   }
   
   ngAfterViewInit() {
+    // Ensure scroll to top after view is initialized
+    this.scrollToTop();
+    
     // Initialize video for iOS compatibility
     setTimeout(() => {
       this.initializeVideoForIOS();
     }, 100);
+  }
+
+  private scrollToTop() {
+    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+    // Fallback for older browsers or mobile
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
   }
 
   private initializeVideoForIOS() {

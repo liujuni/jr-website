@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 
@@ -84,5 +84,20 @@ import { RouterModule } from '@angular/router';
     }
   `]
 })
-export class TennisPageComponent {
+export class TennisPageComponent implements OnInit, AfterViewInit {
+  
+  ngOnInit() {
+    this.scrollToTop();
+  }
+
+  ngAfterViewInit() {
+    this.scrollToTop();
+  }
+
+  private scrollToTop() {
+    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+    // Fallback for older browsers or mobile
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }
 }
