@@ -65,7 +65,7 @@ import { filter } from 'rxjs/operators';
     
     .profile-frame {
       display: inline-block;
-      background-image: url('https://website-juniorliu.s3.us-east-2.amazonaws.com/res/border2.png');
+      background-image: url('https://website-juniorliu.s3.us-east-2.amazonaws.com/res/border.png');
       background-size: 130%;
       background-repeat: no-repeat;
       background-position: center;
