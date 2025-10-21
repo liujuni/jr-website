@@ -99,8 +99,26 @@ import { RouterModule } from '@angular/router';
     }
     
     .nav-icon:hover {
-      transform: translateY(-5px);
       border-color: rgba(255, 255, 255, 0.6);
+      animation: doubleJump 0.6s ease-in-out;
+    }
+    
+    @keyframes doubleJump {
+      0% {
+        transform: translateY(0px);
+      }
+      25% {
+        transform: translateY(-10px);
+      }
+      50% {
+        transform: translateY(0px);
+      }
+      75% {
+        transform: translateY(-10px);
+      }
+      100% {
+        transform: translateY(0px);
+      }
     }
     
     .nav-icon .icon {
@@ -125,19 +143,22 @@ import { RouterModule } from '@angular/router';
       }
       
       .navigation-icons {
-        gap: 2rem;
-        flex-wrap: wrap;
+        gap: 1.2rem;
+        flex-wrap: nowrap;
         justify-content: center;
+        overflow-x: auto;
+        padding: 0 1rem;
       }
       
       .nav-icon {
-        min-width: 60px;
-        min-height: 60px;
+        min-width: 55px;
+        min-height: 55px;
+        flex-shrink: 0;
       }
       
       .nav-icon .icon {
-        width: 50px;
-        height: 50px;
+        width: 45px;
+        height: 45px;
       }
     }
     
@@ -157,18 +178,23 @@ import { RouterModule } from '@angular/router';
       }
       
       .navigation-icons {
-        gap: 1.5rem;
+        gap: 0.8rem;
+        flex-wrap: nowrap;
+        justify-content: center;
+        overflow-x: auto;
+        padding: 0 0.5rem;
       }
       
       .nav-icon {
         min-width: 50px;
         min-height: 50px;
         padding: 8px;
+        flex-shrink: 0;
       }
       
       .nav-icon .icon {
-        width: 40px;
-        height: 40px;
+        width: 38px;
+        height: 38px;
       }
     }
   `]
