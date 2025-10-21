@@ -64,7 +64,7 @@ import { RouterModule, Router } from '@angular/router';
     
     .profile-frame {
       display: inline-block;
-      background-image: url('https://website-juniorliu.s3.us-east-2.amazonaws.com/res/border1.jpg');
+      background-image: url('https://website-juniorliu.s3.us-east-2.amazonaws.com/res/border2.png');
       background-size: 115%;
       background-repeat: no-repeat;
       background-position: center;
