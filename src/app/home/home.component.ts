@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 
@@ -8,20 +8,16 @@ import { RouterModule } from '@angular/router';
   imports: [CommonModule, RouterModule],
   template: `
     <div class="home-container">
-      <!-- Profile Picture Section -->
-      <div class="profile-section show">
-        <div class="profile-container" (click)="nextProfilePicture()">
-          <div class="profile-frame">
-            <img 
-              [src]="currentProfilePicture" 
-              [alt]="'Profile Picture ' + (currentProfileIndex + 1)"
-              class="profile-image">
-          </div>
+      <div class="profile-container" (click)="nextProfilePicture()">
+        <div class="profile-frame">
+          <img 
+            [src]="currentProfilePicture" 
+            [alt]="'Profile Picture ' + (currentProfileIndex + 1)"
+            class="profile-image">
         </div>
       </div>
       
-      <!-- Navigation Icons -->
-      <div class="navigation-icons show">
+      <div class="navigation-icons">
         <a href="https://www.linkedin.com/in/junior-liu-548241102/" target="_blank" class="nav-icon" title="LinkedIn">
           <img [src]="linkedinIconUrl" alt="LinkedIn" class="icon">
         </a>
@@ -50,22 +46,10 @@ import { RouterModule } from '@angular/router';
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-start;
       background: black;
-      position: relative;
       overflow-x: hidden;
-      padding: 2.5rem 1.5rem;
-    }
-    
-    .profile-section {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    
-    .profile-section.show {
-      opacity: 1;
-      transform: scale(1);
+      padding: 3rem 2rem 0;
     }
     
     .profile-container {
@@ -79,21 +63,18 @@ import { RouterModule } from '@angular/router';
     }
     
     .profile-frame {
-      position: relative;
       display: inline-block;
       background-image: url('https://website-juniorliu.s3.us-east-2.amazonaws.com/res/border1.jpg');
-      background-size: 110%;
+      background-size: 130%;
       background-repeat: no-repeat;
       background-position: center;
-      padding: 90px;
+      padding: 110px;
       box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
-      width: fit-content;
-      height: fit-content;
     }
     
     .profile-image {
-      max-width: 360px;
-      max-height: 360px;
+      max-width: 306px;
+      max-height: 306px;
       width: auto;
       height: auto;
       object-fit: contain;
@@ -104,13 +85,6 @@ import { RouterModule } from '@angular/router';
     .navigation-icons {
       display: flex;
       gap: 4rem;
-      opacity: 1;
-      transform: translateY(0);
-    }
-    
-    .navigation-icons.show {
-      opacity: 1;
-      transform: translateY(0);
     }
     
     .nav-icon {
@@ -137,44 +111,12 @@ import { RouterModule } from '@angular/router';
     
     @media (max-width: 768px) {
       .home-container {
-        padding: 1.5rem 1rem;
+        padding: 2rem 1rem 0;
       }
       
       .profile-frame {
-        background-size: 110%;
-        padding: 65px;
-      }
-      
-      .profile-image {
-        max-width: 300px;
-        max-height: 300px;
-      }
-      
-      .navigation-icons {
-        gap: 2.5rem;
-        flex-wrap: wrap;
-        justify-content: center;
-      }
-      
-      .nav-icon .icon {
-        width: 50px;
-        height: 50px;
-      }
-      
-      .nav-icon {
-        min-width: 70px;
-        min-height: 70px;
-      }
-    }
-    
-    @media (max-width: 480px) {
-      .home-container {
-        padding: 1rem 0.5rem;
-      }
-      
-      .profile-frame {
-        background-size: 110%;
-        padding: 55px;
+        padding: 80px;
+        background-size: 120%;
       }
       
       .profile-image {
@@ -183,24 +125,55 @@ import { RouterModule } from '@angular/router';
       }
       
       .navigation-icons {
+        gap: 2rem;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      
+      .nav-icon {
+        min-width: 60px;
+        min-height: 60px;
+      }
+      
+      .nav-icon .icon {
+        width: 50px;
+        height: 50px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .home-container {
+        padding: 1rem 0.5rem 0;
+      }
+      
+      .profile-frame {
+        padding: 60px;
+        background-size: 115%;
+      }
+      
+      .profile-image {
+        max-width: 200px;
+        max-height: 200px;
+      }
+      
+      .navigation-icons {
         gap: 1.5rem;
+      }
+      
+      .nav-icon {
+        min-width: 50px;
+        min-height: 50px;
+        padding: 8px;
       }
       
       .nav-icon .icon {
         width: 40px;
         height: 40px;
       }
-      
-      .nav-icon {
-        min-width: 60px;
-        min-height: 60px;
-        padding: 8px;
-      }
     }
   `]
 })
-export class HomeComponent implements OnInit {
-  // S3 URLs for assets
+export class HomeComponent {
   readonly profilePictures = [
     'https://website-juniorliu.s3.us-east-2.amazonaws.com/res/jr1.jpg',
     'https://website-juniorliu.s3.us-east-2.amazonaws.com/res/jr2.jpg',
@@ -208,7 +181,6 @@ export class HomeComponent implements OnInit {
     'https://website-juniorliu.s3.us-east-2.amazonaws.com/res/jr4.jpg'
   ];
   readonly linkedinIconUrl = 'https://website-juniorliu.s3.us-east-2.amazonaws.com/res/linkedin.png';
-  readonly cvUrl = 'https://website-juniorliu.s3.us-east-2.amazonaws.com/res/resume-25.pdf';
   readonly cvIconUrl = 'https://website-juniorliu.s3.us-east-2.amazonaws.com/res/cv.png';
   readonly mjClubIconUrl = 'https://website-juniorliu.s3.us-east-2.amazonaws.com/res/mj.png';
   readonly porscheIconUrl = 'https://website-juniorliu.s3.us-east-2.amazonaws.com/res/porsche.jpg';
@@ -220,12 +192,7 @@ export class HomeComponent implements OnInit {
     return this.profilePictures[this.currentProfileIndex];
   }
   
-  ngOnInit() {
-    // Component initialization
-  }
-  
   nextProfilePicture() {
     this.currentProfileIndex = (this.currentProfileIndex + 1) % this.profilePictures.length;
-    console.log(`Switched to profile picture ${this.currentProfileIndex + 1}`);
   }
 }

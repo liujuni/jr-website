@@ -45,13 +45,23 @@ import { Router } from '@angular/router';
     
     @media (max-width: 768px) {
       .video-page-container {
-        padding: 1rem;
+        padding: 0.5rem;
+      }
+      
+      .fullscreen-video {
+        max-width: 100vw;
+        max-height: calc(100vh - 1rem);
       }
     }
     
     @media (max-width: 480px) {
       .video-page-container {
-        padding: 0.5rem;
+        padding: 0;
+      }
+      
+      .fullscreen-video {
+        max-width: 100vw;
+        max-height: 100vh;
       }
     }
   `]
@@ -87,15 +97,18 @@ export class VideoPageComponent implements AfterViewInit {
         cursor: pointer;
         font-size: 18px;
         z-index: 1000;
+        touch-action: manipulation;
+        user-select: none;
+        min-width: 200px;
+        text-align: center;
       `;
-      overlay.textContent = 'Click to Play Video';
+      overlay.textContent = 'Tap to Play Video';
       overlay.addEventListener('click', () => {
-        if (this.introVideo && this.introVideo.nativeElement) {
-          this.introVideo.nativeElement.play().then(() => {
-            // Remove overlay when video starts playing
-            this.removeClickToPlayOverlay();
-          }).catch(console.error);
-        }
+        this.playVideo();
+      });
+      overlay.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        this.playVideo();
       });
       container.appendChild(overlay);
     }
@@ -119,34 +132,25 @@ export class VideoPageComponent implements AfterViewInit {
     this.router.navigate(['/index']);
   }
   
-  onContainerClick() {
-    // Handle clicks on the container to play video
+  private playVideo() {
     if (this.introVideo && this.introVideo.nativeElement) {
       const video = this.introVideo.nativeElement;
       if (video.paused) {
         video.play().then(() => {
-          // Remove the play button overlay when video starts
           this.removeClickToPlayOverlay();
         }).catch(error => {
-          console.log('Video play failed on container click:', error);
+          console.log('Video play failed:', error);
         });
       }
     }
   }
   
+  onContainerClick() {
+    this.playVideo();
+  }
+  
   onVideoClick() {
-    // Handle direct clicks on the video
-    if (this.introVideo && this.introVideo.nativeElement) {
-      const video = this.introVideo.nativeElement;
-      if (video.paused) {
-        video.play().then(() => {
-          // Remove the play button overlay when video starts
-          this.removeClickToPlayOverlay();
-        }).catch(error => {
-          console.log('Video play failed on video click:', error);
-        });
-      }
-    }
+    this.playVideo();
   }
 
   private removeClickToPlayOverlay() {
