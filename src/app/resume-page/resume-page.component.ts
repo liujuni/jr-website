@@ -287,23 +287,60 @@ export class ResumePageComponent implements OnInit {
     }, 5000);
   }
 
-  downloadPdf() {
+  async downloadPdf() {
     try {
-      // Create a temporary anchor element for download
-      const link = document.createElement('a');
-      link.href = this.resumePdfUrl;
-      link.download = 'resume-25.pdf';
-      link.target = '_blank'; // Fallback: open in new tab if download fails
+      // Create download URL with forced download parameter
+      const downloadUrl = `${this.resumePdfUrl}?download=true&response-content-disposition=attachment`;
       
-      // Append to body, click, and remove
+      // Method 1: Try blob download first (bypasses extensions)
+      try {
+        const response = await fetch(downloadUrl, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/pdf,application/octet-stream,*/*',
+          },
+        });
+        
+        if (response.ok) {
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = 'resume-25.pdf';
+          link.style.display = 'none';
+          
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          
+          // Clean up the object URL
+          setTimeout(() => {
+            window.URL.revokeObjectURL(url);
+          }, 100);
+          
+          console.log('PDF download initiated via blob');
+          return;
+        }
+      } catch (fetchError) {
+        console.log('Blob fetch failed, trying direct download:', fetchError);
+      }
+
+      // Method 2: Direct download with modified URL to force download
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = 'resume-25.pdf';
+      link.setAttribute('download', 'resume-25.pdf');
+      link.style.display = 'none';
+      
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       
-      console.log('PDF download initiated');
+      console.log('PDF download initiated via direct link');
     } catch (error) {
-      console.error('Failed to download PDF:', error);
-      // Fallback: try to open in new tab
+      console.error('All download methods failed:', error);
+      // Final fallback
       window.open(this.resumePdfUrl, '_blank');
     }
   }
