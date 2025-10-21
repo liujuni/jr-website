@@ -51,13 +51,13 @@ import { RouterModule } from '@angular/router';
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      background-image: url('https://website-juniorliu.s3.us-east-2.amazonaws.com/res/bg2.jpg');
+      background-image: url('https://website-juniorliu.s3.us-east-2.amazonaws.com/res/bg3.jpg');
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
       position: relative;
       overflow-x: hidden;
-      padding: 2rem 1rem;
+      padding: 3rem 2rem;
     }
     
     .profile-section {
@@ -85,18 +85,20 @@ import { RouterModule } from '@angular/router';
       position: relative;
       display: inline-block;
       background-image: url('https://website-juniorliu.s3.us-east-2.amazonaws.com/res/border1.jpg');
-      background-size: contain;
+      background-size: cover;
       background-repeat: no-repeat;
       background-position: center;
-      padding: 80px;
+      padding: 120px;
       box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
       width: fit-content;
       height: fit-content;
+      min-width: 500px;
+      min-height: 500px;
     }
     
     .profile-image {
-      max-width: 360px;
-      max-height: 360px;
+      max-width: 480px;
+      max-height: 480px;
       width: auto;
       height: auto;
       object-fit: contain;
@@ -139,17 +141,19 @@ import { RouterModule } from '@angular/router';
     
     @media (max-width: 768px) {
       .home-container {
-        padding: 1rem 0.5rem;
+        padding: 2rem 1rem;
       }
       
       .profile-frame {
-        background-size: contain;
-        padding: 60px;
+        background-size: cover;
+        padding: 80px;
+        min-width: 400px;
+        min-height: 400px;
       }
       
       .profile-image {
-        max-width: 300px;
-        max-height: 300px;
+        max-width: 400px;
+        max-height: 400px;
       }
       
       .navigation-icons {
@@ -171,17 +175,19 @@ import { RouterModule } from '@angular/router';
     
     @media (max-width: 480px) {
       .home-container {
-        padding: 0.5rem 0.25rem;
+        padding: 1rem 0.5rem;
       }
       
       .profile-frame {
-        background-size: contain;
-        padding: 50px;
+        background-size: cover;
+        padding: 60px;
+        min-width: 320px;
+        min-height: 320px;
       }
       
       .profile-image {
-        max-width: 250px;
-        max-height: 250px;
+        max-width: 320px;
+        max-height: 320px;
       }
       
       .navigation-icons {
