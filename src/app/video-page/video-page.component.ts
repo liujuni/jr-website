@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, ElementRef, ViewChild, AfterViewInit, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
@@ -72,16 +72,22 @@ import { Router } from '@angular/router';
     }
   `]
 })
-export class VideoPageComponent implements AfterViewInit {
+export class VideoPageComponent implements OnInit, AfterViewInit {
   @ViewChild('introVideo') introVideo!: ElementRef<HTMLVideoElement>;
   
   readonly videoUrl = 'https://website-juniorliu.s3.us-east-2.amazonaws.com/res/is-that-you.mp4';
   private buttonAdded = false;
-  private buttonDismissed = false;
   
-  constructor(private router: Router) {
-    // Check if button was already dismissed in this session
-    this.buttonDismissed = sessionStorage.getItem('videoButtonDismissed') === 'true';
+  constructor(private router: Router) {}
+  
+  ngOnInit() {
+    // Reset video state when component initializes
+    this.buttonAdded = false;
+    // Remove any existing play button
+    const existingButton = document.querySelector('.click-to-play');
+    if (existingButton) {
+      existingButton.remove();
+    }
   }
   
   ngAfterViewInit() {
@@ -101,6 +107,10 @@ export class VideoPageComponent implements AfterViewInit {
       // Remove muted to enable sound
       video.muted = false;
       
+      // Reset video to beginning and pause
+      video.currentTime = 0;
+      video.pause();
+      
       // Force load video metadata on iOS
       video.load();
       
@@ -111,21 +121,21 @@ export class VideoPageComponent implements AfterViewInit {
       
       video.addEventListener('loadedmetadata', () => {
         console.log('iOS Video metadata loaded');
-        if (!this.buttonAdded && !this.buttonDismissed) {
+        if (!this.buttonAdded) {
           this.addClickToPlayButton();
         }
       });
       
       video.addEventListener('canplay', () => {
         console.log('iOS Video can play');
-        if (!this.buttonAdded && !this.buttonDismissed) {
+        if (!this.buttonAdded) {
           this.addClickToPlayButton();
         }
       });
       
       // Fallback: show button after timeout if events don't fire
       setTimeout(() => {
-        if (!document.querySelector('.click-to-play') && !this.buttonAdded && !this.buttonDismissed) {
+        if (!document.querySelector('.click-to-play') && !this.buttonAdded) {
           this.addClickToPlayButton();
         }
       }, 3000);
@@ -136,7 +146,7 @@ export class VideoPageComponent implements AfterViewInit {
   private addClickToPlayButton() {
     // Add a click overlay to allow user to play the video
     const container = document.querySelector('.video-page-container');
-    if (container && !container.querySelector('.click-to-play') && !this.buttonAdded && !this.buttonDismissed) {
+    if (container && !container.querySelector('.click-to-play') && !this.buttonAdded) {
       this.buttonAdded = true;
       const overlay = document.createElement('div');
       overlay.className = 'click-to-play';
@@ -175,7 +185,7 @@ export class VideoPageComponent implements AfterViewInit {
   onVideoLoaded() {
     console.log('Video loaded and ready to play');
     // Show click to play button since autoplay is disabled
-    if (!this.buttonAdded && !this.buttonDismissed) {
+    if (!this.buttonAdded) {
       this.addClickToPlayButton();
     }
   }
@@ -183,7 +193,7 @@ export class VideoPageComponent implements AfterViewInit {
   onVideoCanPlay() {
     console.log('Video can play');
     // Show click to play button since autoplay is disabled
-    if (!this.buttonAdded && !this.buttonDismissed) {
+    if (!this.buttonAdded) {
       this.addClickToPlayButton();
     }
   }
@@ -250,9 +260,6 @@ export class VideoPageComponent implements AfterViewInit {
     if (overlay) {
       overlay.remove();
       this.buttonAdded = false;
-      this.buttonDismissed = true;
-      // Remember that button was dismissed for this session
-      sessionStorage.setItem('videoButtonDismissed', 'true');
     }
   }
 }
