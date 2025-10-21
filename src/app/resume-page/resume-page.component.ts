@@ -265,23 +265,19 @@ export class ResumePageComponent implements OnInit {
       try {
         // Check if iframe has content
         if (iframe.contentDocument === null || iframe.contentWindow === null) {
-          console.log('PDF may not be loading due to CORS restrictions');
           this.tryGoogleViewer();
         }
       } catch (e) {
-        console.log('CORS restriction detected, trying Google Viewer');
         this.tryGoogleViewer();
       }
     }
   }
   
   onIframeLoad() {
-    console.log('Iframe loaded successfully');
     this.showFallback = false;
   }
   
   onIframeError() {
-    console.log('Iframe failed to load, trying Google Viewer');
     this.tryGoogleViewer();
   }
   
@@ -297,9 +293,7 @@ export class ResumePageComponent implements OnInit {
   }
 
   downloadPdf() {
-    // Open PDF in a new tab
     window.open(this.resumePdfUrl, '_blank');
-    console.log('PDF opened in new tab');
   }
 
 }

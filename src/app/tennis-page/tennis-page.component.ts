@@ -44,12 +44,6 @@ import { RouterModule } from '@angular/router';
       text-align: center;
     }
     
-    h1 {
-      font-size: 3rem;
-      margin-bottom: 1rem;
-      color: white;
-    }
-    
     p {
       font-size: 1.5rem;
       margin-bottom: 2rem;
@@ -67,10 +61,6 @@ import { RouterModule } from '@angular/router';
         left: 1rem;
         padding: 0.6rem 1rem;
         font-size: 0.9rem;
-      }
-      
-      h1 {
-        font-size: 2rem;
       }
       
       p {

@@ -51,21 +51,11 @@ import { Router } from '@angular/router';
       .video-page-container {
         padding: 0.5rem;
       }
-      
-      .fullscreen-video {
-        max-width: 100vw;
-        max-height: calc(100vh - 1rem);
-      }
     }
     
     @media (max-width: 480px) {
       .video-page-container {
         padding: 0;
-      }
-      
-      .fullscreen-video {
-        max-width: 100vw;
-        max-height: 100vh;
       }
     }
   `]
