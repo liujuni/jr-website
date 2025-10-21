@@ -56,30 +56,9 @@ export class VideoPageComponent implements AfterViewInit {
     // No timeout - let user stay on video page as long as they want
   }
   
-  private attemptVideoPlay() {
-    const attempts = [100, 500, 1000, 2000];
-    attempts.forEach(delay => {
-      setTimeout(() => {
-        if (this.introVideo && this.introVideo.nativeElement) {
-          const video = this.introVideo.nativeElement;
-          
-          // Ensure video is ready
-          if (video.readyState >= 3) {
-            video.play().catch(error => {
-              console.log(`Video play attempt failed after ${delay}ms:`, error);
-              // Add user interaction fallback
-              if (error.name === 'NotAllowedError') {
-                this.addClickToPlayFallback();
-              }
-            });
-          }
-        }
-      }, delay);
-    });
-  }
   
-  private addClickToPlayFallback() {
-    // Add a click overlay if autoplay fails
+  private addClickToPlayButton() {
+    // Add a click overlay to allow user to play the video
     const container = document.querySelector('.video-page-container');
     if (container && !container.querySelector('.click-to-play')) {
       const overlay = document.createElement('div');
@@ -113,13 +92,13 @@ export class VideoPageComponent implements AfterViewInit {
   onVideoLoaded() {
     console.log('Video loaded and ready to play');
     // Show click to play button since autoplay is disabled
-    this.addClickToPlayFallback();
+    this.addClickToPlayButton();
   }
   
   onVideoCanPlay() {
     console.log('Video can play');
     // Show click to play button since autoplay is disabled
-    this.addClickToPlayFallback();
+    this.addClickToPlayButton();
   }
   
   onVideoEnd() {
