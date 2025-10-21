@@ -175,10 +175,10 @@ import { filter } from 'rxjs/operators';
       animation: none;
     }
     
-    /* Mobile: single jump animation for click */
+    /* Mobile: scale/zoom effect for click */
     @media (max-width: 768px) {
       .nav-icon.animating {
-        animation: singleJump 0.4s ease-in-out;
+        transform: scale(1.1);
       }
     }
     
@@ -194,18 +194,6 @@ import { filter } from 'rxjs/operators';
       }
       75% {
         transform: translateY(-10px);
-      }
-      100% {
-        transform: translateY(0px);
-      }
-    }
-    
-    @keyframes singleJump {
-      0% {
-        transform: translateY(0px);
-      }
-      50% {
-        transform: translateY(-8px);
       }
       100% {
         transform: translateY(0px);
@@ -324,17 +312,14 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
         // Immediate reset to prevent any erroneous animations
         this.resetNavigationState();
         
-        // Add small delay to ensure DOM is fully updated after navigation
+        // Small delay to ensure DOM is fully updated after navigation
         setTimeout(() => {
-          this.resetNavigationState();
           this.scrollToTop();
         }, 50);
       });
     
-    // Initial cleanup to handle browser back button and prevent animation replay
-    setTimeout(() => {
-      this.resetNavigationState();
-    }, 100);
+    // Initial cleanup
+    setTimeout(() => this.resetNavigationState(), 100);
   }
 
   ngAfterViewInit() {
@@ -343,33 +328,17 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private resetNavigationState() {
-    // Reset navigation state like the "Back to Home" button
     this.isNavigating = false;
+    this.clearTimeouts();
     
-    if (this.navigationTimeout) {
-      clearTimeout(this.navigationTimeout);
-      this.navigationTimeout = null;
-    }
-    
-    if (this.animationTimeout) {
-      clearTimeout(this.animationTimeout);
-      this.animationTimeout = null;
-    }
-    
-    // More thorough cleanup for browser back button - force reset all animation states
+    // Reset animation states
     document.querySelectorAll('.nav-icon').forEach(navIcon => {
-      // Remove animating class immediately
       navIcon.classList.remove('animating');
       
-      // Force reset any lingering CSS animation states
       const element = navIcon as HTMLElement;
       element.style.animation = 'none';
       element.style.transform = '';
-      
-      // Trigger reflow to ensure style reset
-      element.offsetHeight;
-      
-      // Reset animation property to empty string (not original value)
+      element.offsetHeight; // Trigger reflow
       element.style.animation = '';
       element.style.transform = '';
     });
@@ -377,17 +346,22 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private scrollToTop() {
     window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
-    // Fallback for older browsers or mobile
     document.documentElement.scrollTop = 0;
     document.body.scrollTop = 0;
   }
   
   ngOnDestroy() {
+    this.clearTimeouts();
+  }
+
+  private clearTimeouts() {
     if (this.navigationTimeout) {
       clearTimeout(this.navigationTimeout);
+      this.navigationTimeout = null;
     }
     if (this.animationTimeout) {
       clearTimeout(this.animationTimeout);
+      this.animationTimeout = null;
     }
   }
   
@@ -429,58 +403,38 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     
     this.isNavigating = true;
     
-    // Clear any existing navigation timeout
-    if (this.navigationTimeout) {
-      clearTimeout(this.navigationTimeout);
-      this.navigationTimeout = null;
-    }
-    
-    // Get the clicked element to add animation class
     const target = event?.currentTarget as HTMLElement;
     const navIcon = target?.closest('.nav-icon') as HTMLElement || target;
     const isMobileDevice = this.isMobile();
     
-    // Add animation class only for mobile devices when icon is clicked
+    // Handle mobile animation
     if (navIcon && isMobileDevice) {
-      // Clear any existing animations first
       document.querySelectorAll('.nav-icon.animating').forEach(el => {
         el.classList.remove('animating');
       });
       
-      // Add animation class to the specific icon being clicked (mobile only)
       navIcon.classList.add('animating');
       
-      // Remove animation class after animation completes (400ms for singleJump)
       this.animationTimeout = setTimeout(() => {
         navIcon?.classList.remove('animating');
         this.animationTimeout = null;
-      }, 400);
+      }, 300);
     }
     
-    if (isExternal) {
-      if (isMobileDevice) {
-        // For external links on mobile, add 300ms delay
-        this.navigationTimeout = setTimeout(() => {
-          window.open(url, '_blank', 'noopener,noreferrer');
-          this.isNavigating = false;
-        }, 300);
-      } else {
-        // For external links on desktop, open immediately
+    // Handle navigation
+    const navigate = () => {
+      if (isExternal) {
         window.open(url, '_blank', 'noopener,noreferrer');
-        this.isNavigating = false;
-      }
-    } else {
-      if (isMobileDevice) {
-        // For internal links on mobile, add 300ms delay
-        this.navigationTimeout = setTimeout(() => {
-          this.router.navigate([url]);
-          this.isNavigating = false;
-        }, 300);
       } else {
-        // For internal links on desktop, navigate immediately
         this.router.navigate([url]);
-        this.isNavigating = false;
       }
+      this.isNavigating = false;
+    };
+    
+    if (isMobileDevice) {
+      this.navigationTimeout = setTimeout(navigate, 600);
+    } else {
+      navigate();
     }
   }
 
