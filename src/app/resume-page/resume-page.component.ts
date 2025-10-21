@@ -289,12 +289,9 @@ export class ResumePageComponent implements OnInit {
 
   async downloadPdf() {
     try {
-      // Create download URL with forced download parameter
-      const downloadUrl = `${this.resumePdfUrl}?download=true&response-content-disposition=attachment`;
-      
-      // Method 1: Try blob download first (bypasses extensions)
+      // Method 1: Try blob download first (bypasses extensions, uses original URL)
       try {
-        const response = await fetch(downloadUrl, {
+        const response = await fetch(this.resumePdfUrl, {
           method: 'GET',
           headers: {
             'Accept': 'application/pdf,application/octet-stream,*/*',
@@ -326,9 +323,9 @@ export class ResumePageComponent implements OnInit {
         console.log('Blob fetch failed, trying direct download:', fetchError);
       }
 
-      // Method 2: Direct download with modified URL to force download
+      // Method 2: Direct download with original URL
       const link = document.createElement('a');
-      link.href = downloadUrl;
+      link.href = this.resumePdfUrl;
       link.download = 'resume-25.pdf';
       link.setAttribute('download', 'resume-25.pdf');
       link.style.display = 'none';
