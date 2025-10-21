@@ -290,55 +290,23 @@ export class ResumePageComponent implements OnInit {
   async downloadPdf() {
     console.log('Starting PDF download, URL:', this.resumePdfUrl);
     
-    // Method 1: Try XMLHttpRequest blob download (should bypass extensions)
+    // Try blob download first (this should trigger browser's native download dialog)
     try {
-      console.log('Attempting XMLHttpRequest blob download...');
+      console.log('Attempting blob download (should open file dialog)...');
       const blob = await this.fetchPdfAsBlob();
       if (blob && blob.size > 0) {
-        console.log('Blob download successful, size:', blob.size);
+        console.log('Blob received, triggering download dialog...');
         this.downloadBlob(blob, 'resume-25.pdf');
         return;
-      } else {
-        console.log('Blob download failed - empty or invalid blob');
       }
     } catch (error) {
       console.log('Blob download failed:', error);
     }
 
-    // Method 2: Try using a different approach with window.location
-    try {
-      console.log('Trying window.location approach...');
-      // Create a temporary input element to trigger download
-      const input = document.createElement('input');
-      input.type = 'hidden';
-      input.value = this.resumePdfUrl;
-      
-      // Try setting location directly
-      const downloadFrame = document.createElement('iframe');
-      downloadFrame.style.display = 'none';
-      downloadFrame.style.width = '0';
-      downloadFrame.style.height = '0';
-      document.body.appendChild(downloadFrame);
-      
-      // Try to set the iframe src to trigger download
-      downloadFrame.src = this.resumePdfUrl + '?download=1';
-      
-      // Clean up
-      setTimeout(() => {
-        if (document.body.contains(downloadFrame)) {
-          document.body.removeChild(downloadFrame);
-        }
-      }, 3000);
-      
-      console.log('Iframe download method attempted');
-    } catch (error) {
-      console.log('Iframe method failed:', error);
-    }
-
-    // Method 3: Show user guidance
-    console.log('All automatic methods failed. Extension is interfering.');
+    // Fallback: show instructions if blob method fails
     this.showDownloadInstructions();
   }
+
 
   private async fetchPdfAsBlob(): Promise<Blob | null> {
     return new Promise((resolve) => {
@@ -391,16 +359,34 @@ export class ResumePageComponent implements OnInit {
     link.download = filename;
     link.style.display = 'none';
     
+    // Ensure the download attribute is properly set
+    link.setAttribute('download', filename);
+    link.setAttribute('target', '_self');
+    
     document.body.appendChild(link);
-    link.click();
     
-    // Clean up
+    // Trigger download with multiple methods to ensure it works
+    try {
+      link.click();
+    } catch (e) {
+      console.log('Click failed, trying dispatchEvent');
+      const clickEvent = new MouseEvent('click', {
+        view: window,
+        bubbles: true,
+        cancelable: true
+      });
+      link.dispatchEvent(clickEvent);
+    }
+    
+    // Clean up after a delay to ensure download starts
     setTimeout(() => {
-      document.body.removeChild(link);
+      if (document.body.contains(link)) {
+        document.body.removeChild(link);
+      }
       window.URL.revokeObjectURL(url);
-    }, 100);
+    }, 1000);
     
-    console.log('Blob download completed');
+    console.log('Blob download initiated');
   }
 
   private showDownloadInstructions() {
@@ -422,12 +408,15 @@ export class ResumePageComponent implements OnInit {
     `;
     
     notification.innerHTML = `
-      <h3 style="margin: 0 0 15px 0; color: #ffcc00;">Download Blocked by Extension</h3>
+      <h3 style="margin: 0 0 15px 0; color: #ffcc00;">Download Issue Detected</h3>
       <p style="margin: 0 0 15px 0; font-size: 14px;">
-        Your PDF viewer extension is preventing automatic download.
+        The download should have opened your browser's "Save As" dialog to choose where to save the PDF file.
+      </p>
+      <p style="margin: 0 0 15px 0; font-size: 14px;">
+        If it didn't work, your PDF viewer extension may be interfering.
       </p>
       <p style="margin: 0 0 20px 0; font-size: 14px;">
-        <strong>Solution:</strong> Right-click the "Download PDF" button and select "Save link as..."
+        <strong>Alternative:</strong> Right-click the "Download PDF" button and select "Save link as..."
       </p>
       <button onclick="this.parentElement.remove()" style="
         background: #007bff;
