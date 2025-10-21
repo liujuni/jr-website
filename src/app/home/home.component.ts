@@ -48,13 +48,14 @@ import { filter } from 'rxjs/operators';
       justify-content: flex-start;
       background: black;
       overflow-x: hidden;
-      padding: 3rem 2rem 0;
+      padding: 0 2rem 0;
     }
     
     .profile-container {
       cursor: pointer;
       transition: transform 0.3s ease;
-      margin-bottom: 3rem;
+      margin: 0;
+      padding: 0;
     }
     
     .profile-container:hover {
@@ -62,8 +63,8 @@ import { filter } from 'rxjs/operators';
     }
     
     .profile-image {
-      max-width: 612px;
-      max-height: 612px;
+      max-width: 979px;
+      max-height: 979px;
       width: auto;
       height: auto;
       object-fit: contain;
@@ -75,6 +76,7 @@ import { filter } from 'rxjs/operators';
     .navigation-icons {
       display: flex;
       gap: 4rem;
+      margin-top: 3rem;
     }
     
     .nav-icon {
@@ -124,12 +126,12 @@ import { filter } from 'rxjs/operators';
     
     @media (max-width: 768px) {
       .home-container {
-        padding: 2rem 1rem 0;
+        padding: 0 1rem 0;
       }
       
       .profile-image {
-        max-width: 500px;
-        max-height: 500px;
+        max-width: 800px;
+        max-height: 800px;
       }
       
       .navigation-icons {
@@ -154,12 +156,12 @@ import { filter } from 'rxjs/operators';
     
     @media (max-width: 480px) {
       .home-container {
-        padding: 1rem 0.5rem 0;
+        padding: 0 0.5rem 0;
       }
       
       .profile-image {
-        max-width: 400px;
-        max-height: 400px;
+        max-width: 640px;
+        max-height: 640px;
       }
       
       .navigation-icons {
