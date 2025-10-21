@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 
 @Component({
   selector: 'app-home',
@@ -18,25 +18,25 @@ import { RouterModule } from '@angular/router';
       </div>
       
       <div class="navigation-icons">
-        <a href="https://www.linkedin.com/in/junior-liu-548241102/" target="_blank" class="nav-icon" title="LinkedIn">
+        <div class="nav-icon" title="LinkedIn" (click)="navigateWithAnimation('https://www.linkedin.com/in/junior-liu-548241102/', true, $event)">
           <img [src]="linkedinIconUrl" alt="LinkedIn" class="icon">
-        </a>
+        </div>
         
-        <a routerLink="/resume" class="nav-icon" title="CV">
+        <div class="nav-icon" title="CV" (click)="navigateWithAnimation('/resume', false, $event)">
           <img [src]="cvIconUrl" alt="CV" class="icon">
-        </a>
+        </div>
         
-        <a href="http://www.seattlemj.com" target="_blank" class="nav-icon" title="MJClub">
+        <div class="nav-icon" title="MJClub" (click)="navigateWithAnimation('http://www.seattlemj.com', true, $event)">
           <img [src]="mjClubIconUrl" alt="MJClub" class="icon">
-        </a>
+        </div>
         
-        <a routerLink="/car" class="nav-icon" title="Car Page">
+        <div class="nav-icon" title="Car Page" (click)="navigateWithAnimation('/car', false, $event)">
           <img [src]="porscheIconUrl" alt="Car Page" class="icon">
-        </a>
+        </div>
         
-        <a routerLink="/tennis" class="nav-icon" title="Tennis Page">
+        <div class="nav-icon" title="Tennis Page" (click)="navigateWithAnimation('/tennis', false, $event)">
           <img [src]="tennisIconUrl" alt="Tennis Page" class="icon">
-        </a>
+        </div>
       </div>
     </div>
   `,
@@ -96,10 +96,15 @@ import { RouterModule } from '@angular/router';
       padding: 10px;
       border: 2px solid rgba(255, 255, 255, 0.3);
       border-radius: 8px;
+      cursor: pointer;
     }
     
     .nav-icon:hover {
       border-color: rgba(255, 255, 255, 0.6);
+      animation: doubleJump 0.6s ease-in-out;
+    }
+    
+    .nav-icon.animating {
       animation: doubleJump 0.6s ease-in-out;
     }
     
@@ -214,11 +219,42 @@ export class HomeComponent {
   
   currentProfileIndex = 0;
   
+  constructor(private router: Router) {}
+  
   get currentProfilePicture(): string {
     return this.profilePictures[this.currentProfileIndex];
   }
   
   nextProfilePicture() {
     this.currentProfileIndex = (this.currentProfileIndex + 1) % this.profilePictures.length;
+  }
+  
+  navigateWithAnimation(url: string, isExternal: boolean, event?: Event) {
+    if (event) {
+      event.preventDefault();
+    }
+    
+    // Get the clicked element to add animation class
+    const target = event?.currentTarget as HTMLElement;
+    const navIcon = target?.closest('.nav-icon') as HTMLElement || target;
+    
+    if (navIcon) {
+      // Add animation class
+      navIcon.classList.add('animating');
+      
+      // Remove animation class after animation completes
+      setTimeout(() => {
+        navIcon.classList.remove('animating');
+      }, 600); // Animation duration is 0.6s
+    }
+    
+    // Navigate after animation starts (small delay to ensure animation is visible)
+    setTimeout(() => {
+      if (isExternal) {
+        window.open(url, '_blank');
+      } else {
+        this.router.navigate([url]);
+      }
+    }, 100);
   }
 }
