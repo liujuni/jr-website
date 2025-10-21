@@ -77,8 +77,12 @@ export class VideoPageComponent implements AfterViewInit {
   
   readonly videoUrl = 'https://website-juniorliu.s3.us-east-2.amazonaws.com/res/is-that-you.mp4';
   private buttonAdded = false;
+  private buttonDismissed = false;
   
-  constructor(private router: Router) {}
+  constructor(private router: Router) {
+    // Check if button was already dismissed in this session
+    this.buttonDismissed = sessionStorage.getItem('videoButtonDismissed') === 'true';
+  }
   
   ngAfterViewInit() {
     // Initialize video for iOS compatibility
@@ -107,21 +111,21 @@ export class VideoPageComponent implements AfterViewInit {
       
       video.addEventListener('loadedmetadata', () => {
         console.log('iOS Video metadata loaded');
-        if (!this.buttonAdded) {
+        if (!this.buttonAdded && !this.buttonDismissed) {
           this.addClickToPlayButton();
         }
       });
       
       video.addEventListener('canplay', () => {
         console.log('iOS Video can play');
-        if (!this.buttonAdded) {
+        if (!this.buttonAdded && !this.buttonDismissed) {
           this.addClickToPlayButton();
         }
       });
       
       // Fallback: show button after timeout if events don't fire
       setTimeout(() => {
-        if (!document.querySelector('.click-to-play') && !this.buttonAdded) {
+        if (!document.querySelector('.click-to-play') && !this.buttonAdded && !this.buttonDismissed) {
           this.addClickToPlayButton();
         }
       }, 3000);
@@ -132,7 +136,7 @@ export class VideoPageComponent implements AfterViewInit {
   private addClickToPlayButton() {
     // Add a click overlay to allow user to play the video
     const container = document.querySelector('.video-page-container');
-    if (container && !container.querySelector('.click-to-play') && !this.buttonAdded) {
+    if (container && !container.querySelector('.click-to-play') && !this.buttonAdded && !this.buttonDismissed) {
       this.buttonAdded = true;
       const overlay = document.createElement('div');
       overlay.className = 'click-to-play';
@@ -171,7 +175,7 @@ export class VideoPageComponent implements AfterViewInit {
   onVideoLoaded() {
     console.log('Video loaded and ready to play');
     // Show click to play button since autoplay is disabled
-    if (!this.buttonAdded) {
+    if (!this.buttonAdded && !this.buttonDismissed) {
       this.addClickToPlayButton();
     }
   }
@@ -179,7 +183,7 @@ export class VideoPageComponent implements AfterViewInit {
   onVideoCanPlay() {
     console.log('Video can play');
     // Show click to play button since autoplay is disabled
-    if (!this.buttonAdded) {
+    if (!this.buttonAdded && !this.buttonDismissed) {
       this.addClickToPlayButton();
     }
   }
@@ -246,6 +250,9 @@ export class VideoPageComponent implements AfterViewInit {
     if (overlay) {
       overlay.remove();
       this.buttonAdded = false;
+      this.buttonDismissed = true;
+      // Remember that button was dismissed for this session
+      sessionStorage.setItem('videoButtonDismissed', 'true');
     }
   }
 }
