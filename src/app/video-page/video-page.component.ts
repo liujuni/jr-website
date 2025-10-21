@@ -77,12 +77,14 @@ export class VideoPageComponent implements OnInit, AfterViewInit {
   
   readonly videoUrl = 'https://website-juniorliu.s3.us-east-2.amazonaws.com/res/is-that-you.mp4';
   private buttonAdded = false;
+  private buttonDismissed = false;
   
   constructor(private router: Router) {}
   
   ngOnInit() {
     // Reset video state when component initializes
     this.buttonAdded = false;
+    this.buttonDismissed = false;
     // Remove any existing play button
     const existingButton = document.querySelector('.click-to-play');
     if (existingButton) {
@@ -121,21 +123,21 @@ export class VideoPageComponent implements OnInit, AfterViewInit {
       
       video.addEventListener('loadedmetadata', () => {
         console.log('iOS Video metadata loaded');
-        if (!this.buttonAdded) {
+        if (!this.buttonAdded && !this.buttonDismissed) {
           this.addClickToPlayButton();
         }
       });
       
       video.addEventListener('canplay', () => {
         console.log('iOS Video can play');
-        if (!this.buttonAdded) {
+        if (!this.buttonAdded && !this.buttonDismissed) {
           this.addClickToPlayButton();
         }
       });
       
       // Fallback: show button after timeout if events don't fire
       setTimeout(() => {
-        if (!document.querySelector('.click-to-play') && !this.buttonAdded) {
+        if (!document.querySelector('.click-to-play') && !this.buttonAdded && !this.buttonDismissed) {
           this.addClickToPlayButton();
         }
       }, 3000);
@@ -146,7 +148,7 @@ export class VideoPageComponent implements OnInit, AfterViewInit {
   private addClickToPlayButton() {
     // Add a click overlay to allow user to play the video
     const container = document.querySelector('.video-page-container');
-    if (container && !container.querySelector('.click-to-play') && !this.buttonAdded) {
+    if (container && !container.querySelector('.click-to-play') && !this.buttonAdded && !this.buttonDismissed) {
       this.buttonAdded = true;
       const overlay = document.createElement('div');
       overlay.className = 'click-to-play';
@@ -185,7 +187,7 @@ export class VideoPageComponent implements OnInit, AfterViewInit {
   onVideoLoaded() {
     console.log('Video loaded and ready to play');
     // Show click to play button since autoplay is disabled
-    if (!this.buttonAdded) {
+    if (!this.buttonAdded && !this.buttonDismissed) {
       this.addClickToPlayButton();
     }
   }
@@ -193,14 +195,14 @@ export class VideoPageComponent implements OnInit, AfterViewInit {
   onVideoCanPlay() {
     console.log('Video can play');
     // Show click to play button since autoplay is disabled
-    if (!this.buttonAdded) {
+    if (!this.buttonAdded && !this.buttonDismissed) {
       this.addClickToPlayButton();
     }
   }
 
   onVideoPlaying() {
     console.log('Video is now playing');
-    // Remove button when video actually starts playing
+    // Button is already dismissed in playVideo(), just ensure it's removed
     this.removeClickToPlayOverlay();
   }
   
@@ -214,6 +216,10 @@ export class VideoPageComponent implements OnInit, AfterViewInit {
     if (this.introVideo && this.introVideo.nativeElement) {
       const video = this.introVideo.nativeElement;
       
+      // Mark button as dismissed immediately when user clicks play
+      this.buttonDismissed = true;
+      this.removeClickToPlayOverlay();
+      
       // Remove muted to enable sound when user clicks play
       video.muted = false;
       
@@ -226,7 +232,6 @@ export class VideoPageComponent implements OnInit, AfterViewInit {
           if (playPromise !== undefined) {
             playPromise.then(() => {
               console.log('Video started playing');
-              this.removeClickToPlayOverlay();
             }).catch(error => {
               console.log('Video play failed:', error);
               // Don't re-add button on play failure, just log the error
