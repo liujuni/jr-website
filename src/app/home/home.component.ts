@@ -65,10 +65,10 @@ import { RouterModule } from '@angular/router';
     .profile-frame {
       display: inline-block;
       background-image: url('https://website-juniorliu.s3.us-east-2.amazonaws.com/res/border1.jpg');
-      background-size: 130%;
+      background-size: contain;
       background-repeat: no-repeat;
       background-position: center;
-      padding: 110px;
+      padding: 120px;
       box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
     }
     
@@ -115,8 +115,8 @@ import { RouterModule } from '@angular/router';
       }
       
       .profile-frame {
-        padding: 80px;
-        background-size: 120%;
+        padding: 90px;
+        background-size: contain;
       }
       
       .profile-image {
@@ -147,8 +147,8 @@ import { RouterModule } from '@angular/router';
       }
       
       .profile-frame {
-        padding: 60px;
-        background-size: 115%;
+        padding: 70px;
+        background-size: contain;
       }
       
       .profile-image {
