@@ -29,12 +29,12 @@ import { filter } from 'rxjs/operators';
           <img [src]="linkedinIconUrl" alt="LinkedIn" class="icon">
         </div>
         
-        <div class="nav-icon" title="CV" (click)="navigateWithAnimation('/resume', false, $event)">
-          <img [src]="cvIconUrl" alt="CV" class="icon">
+        <div class="nav-icon" title="Resume" (click)="navigateWithAnimation('/resume', false, $event)">
+          <img [src]="cvIconUrl" alt="Resume" class="icon">
         </div>
         
-        <div class="nav-icon" title="MJClub" (click)="navigateWithAnimation('http://www.seattlemj.com', true, $event)">
-          <img [src]="mjClubIconUrl" alt="MJClub" class="icon">
+        <div class="nav-icon" title="Mah Jong Club" (click)="navigateWithAnimation('http://www.seattlemj.com', true, $event)">
+          <img [src]="mjClubIconUrl" alt="Mah Jong Club" class="icon">
         </div>
         
         <div class="nav-icon" title="Car Page" (click)="navigateWithAnimation('/car', false, $event)">
@@ -141,7 +141,8 @@ import { filter } from 'rxjs/operators';
       gap: 4rem;
       margin: 3rem 2rem 0;
       transform: translateY(-110px);
-      padding: 20px 0;
+      padding: 30px 0 20px 0;
+      overflow: visible;
     }
     
     .nav-icon {
@@ -196,7 +197,12 @@ import { filter } from 'rxjs/operators';
       
       .navigation-icons {
         margin: 3rem 1rem 0;
-        padding: 20px 0;
+        padding: 30px 1rem 20px 1rem;
+        overflow: visible;
+        gap: 1.2rem;
+        flex-wrap: nowrap;
+        justify-content: center;
+        overflow-x: auto;
       }
       
       .profile-image {
@@ -207,15 +213,6 @@ import { filter } from 'rxjs/operators';
       .invisible-click-area {
         width: 350px;
         height: 465px;
-      }
-      
-      
-      .navigation-icons {
-        gap: 1.2rem;
-        flex-wrap: nowrap;
-        justify-content: center;
-        overflow-x: auto;
-        padding: 0 1rem;
       }
       
       .nav-icon {
@@ -237,7 +234,12 @@ import { filter } from 'rxjs/operators';
       
       .navigation-icons {
         margin: 3rem 0.5rem 0;
-        padding: 20px 0;
+        padding: 30px 0.5rem 20px 0.5rem;
+        overflow: visible;
+        gap: 0.8rem;
+        flex-wrap: nowrap;
+        justify-content: center;
+        overflow-x: auto;
       }
       
       .profile-image {
@@ -248,15 +250,6 @@ import { filter } from 'rxjs/operators';
       .invisible-click-area {
         width: 315px;
         height: 419px;
-      }
-      
-      
-      .navigation-icons {
-        gap: 0.8rem;
-        flex-wrap: nowrap;
-        justify-content: center;
-        overflow-x: auto;
-        padding: 0 0.5rem;
       }
       
       .nav-icon {
@@ -295,47 +288,35 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   constructor(private router: Router) {}
   
   ngOnInit() {
-    // Scroll to top when component loads
-    this.scrollToTop();
-    
     // Listen for navigation events to reset state
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe(() => {
-        // Reset navigation state when returning to page
-        this.isNavigating = false;
-        if (this.navigationTimeout) {
-          clearTimeout(this.navigationTimeout);
-          this.navigationTimeout = null;
-        }
-        // Remove any remaining animation classes from all icons
-        document.querySelectorAll('.nav-icon.animating').forEach(el => {
-          el.classList.remove('animating');
-        });
-        // Also remove any hover-triggered animations that might still be active
-        document.querySelectorAll('.nav-icon').forEach(el => {
-          el.classList.remove('animating');
-        });
-        // Scroll to top on navigation
+        this.resetNavigationState();
         this.scrollToTop();
       });
     
-    // Additional cleanup on component initialization to handle browser back button
+    // Initial cleanup to handle browser back button
     setTimeout(() => {
-      this.isNavigating = false;
-      if (this.navigationTimeout) {
-        clearTimeout(this.navigationTimeout);
-        this.navigationTimeout = null;
-      }
-      document.querySelectorAll('.nav-icon.animating').forEach(el => {
-        el.classList.remove('animating');
-      });
+      this.resetNavigationState();
     }, 100);
   }
 
   ngAfterViewInit() {
-    // Ensure scroll to top after view is initialized
+    // Scroll to top after view is initialized (this handles the initial load case)
     this.scrollToTop();
+  }
+
+  private resetNavigationState() {
+    this.isNavigating = false;
+    if (this.navigationTimeout) {
+      clearTimeout(this.navigationTimeout);
+      this.navigationTimeout = null;
+    }
+    // Remove all animation classes from nav icons
+    document.querySelectorAll('.nav-icon.animating').forEach(el => {
+      el.classList.remove('animating');
+    });
   }
 
   private scrollToTop() {
@@ -389,7 +370,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     const navIcon = target?.closest('.nav-icon') as HTMLElement || target;
     
     if (navIcon) {
-      // Ensure no other animations are running and remove any existing animation classes
+      // Clear any existing animations first
       document.querySelectorAll('.nav-icon.animating').forEach(el => {
         el.classList.remove('animating');
       });
@@ -399,25 +380,33 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
       
       // Remove animation class after animation completes
       setTimeout(() => {
-        if (navIcon && navIcon.classList.contains('animating')) {
-          navIcon.classList.remove('animating');
-        }
+        navIcon?.classList.remove('animating');
       }, 600); // Animation duration is 0.6s
     }
     
-    // Navigate after animation starts (1.5 second delay to ensure animation is visible)
-    this.navigationTimeout = setTimeout(() => {
-      if (isExternal) {
-        // For external links, try multiple approaches
-        const newWindow = window.open(url, '_blank', 'noopener,noreferrer');
-        if (!newWindow) {
-          // Fallback if popup is blocked
-          window.location.href = url;
+    // Handle external links immediately to preserve user action context
+    // but still allow animation to play
+    if (isExternal) {
+      // Open in new tab immediately (while user action is still in context)
+      const newWindow = window.open(url, '_blank', 'noopener,noreferrer');
+      if (newWindow) {
+        // Focus the new window if possible
+        try {
+          newWindow.focus();
+        } catch (e) {
+          // Some browsers block focus, that's okay
         }
-      } else {
-        this.router.navigate([url]);
       }
-      this.isNavigating = false;
-    }, 1500);
+      // Reset navigation state after animation delay
+      this.navigationTimeout = setTimeout(() => {
+        this.isNavigating = false;
+      }, 1500);
+    } else {
+      // For internal links, navigate after animation completes
+      this.navigationTimeout = setTimeout(() => {
+        this.router.navigate([url]);
+        this.isNavigating = false;
+      }, 1500);
+    }
   }
 }
