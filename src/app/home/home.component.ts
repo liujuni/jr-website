@@ -51,7 +51,7 @@ import { RouterModule } from '@angular/router';
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      background-image: url('https://website-juniorliu.s3.us-east-2.amazonaws.com/res/bg1.jpg');
+      background-image: url('https://website-juniorliu.s3.us-east-2.amazonaws.com/res/bg2.jpg');
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
