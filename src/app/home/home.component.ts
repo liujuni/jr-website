@@ -10,12 +10,10 @@ import { filter } from 'rxjs/operators';
   template: `
     <div class="home-container">
       <div class="profile-container" (click)="nextProfilePicture()">
-        <div class="profile-frame">
-          <img 
-            [src]="currentProfilePicture" 
-            [alt]="'Profile Picture ' + (currentProfileIndex + 1)"
-            class="profile-image">
-        </div>
+        <img 
+          [src]="currentProfilePicture" 
+          [alt]="'Profile Picture ' + (currentProfileIndex + 1)"
+          class="profile-image">
       </div>
       
       <div class="navigation-icons">
@@ -63,16 +61,6 @@ import { filter } from 'rxjs/operators';
       transform: scale(1.05);
     }
     
-    .profile-frame {
-      display: inline-block;
-      background-image: url('https://website-juniorliu.s3.us-east-2.amazonaws.com/res/border.png');
-      background-size: 130%;
-      background-repeat: no-repeat;
-      background-position: center;
-      padding: 150px;
-      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
-    }
-    
     .profile-image {
       max-width: 306px;
       max-height: 306px;
@@ -81,6 +69,7 @@ import { filter } from 'rxjs/operators';
       object-fit: contain;
       display: block;
       margin: 0 auto;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
     }
     
     .navigation-icons {
@@ -138,11 +127,6 @@ import { filter } from 'rxjs/operators';
         padding: 2rem 1rem 0;
       }
       
-      .profile-frame {
-        padding: 115px;
-        background-size: 130%;
-      }
-      
       .profile-image {
         max-width: 250px;
         max-height: 250px;
@@ -171,11 +155,6 @@ import { filter } from 'rxjs/operators';
     @media (max-width: 480px) {
       .home-container {
         padding: 1rem 0.5rem 0;
-      }
-      
-      .profile-frame {
-        padding: 92px;
-        background-size: 130%;
       }
       
       .profile-image {
@@ -207,10 +186,10 @@ import { filter } from 'rxjs/operators';
 })
 export class HomeComponent implements OnInit, OnDestroy {
   readonly profilePictures = [
-    'https://website-juniorliu.s3.us-east-2.amazonaws.com/res/jr1.jpg',
-    'https://website-juniorliu.s3.us-east-2.amazonaws.com/res/jr2.jpg',
-    'https://website-juniorliu.s3.us-east-2.amazonaws.com/res/jr3.jpg',
-    'https://website-juniorliu.s3.us-east-2.amazonaws.com/res/jr4.jpg'
+    'https://website-juniorliu.s3.us-east-2.amazonaws.com/res/pic1.jpg',
+    'https://website-juniorliu.s3.us-east-2.amazonaws.com/res/pic2.jpg',
+    'https://website-juniorliu.s3.us-east-2.amazonaws.com/res/pic3.jpg',
+    'https://website-juniorliu.s3.us-east-2.amazonaws.com/res/pic4.jpg'
   ];
   readonly linkedinIconUrl = 'https://website-juniorliu.s3.us-east-2.amazonaws.com/res/linkedin.png';
   readonly cvIconUrl = 'https://website-juniorliu.s3.us-east-2.amazonaws.com/res/cv.png';
