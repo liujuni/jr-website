@@ -293,8 +293,11 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe(() => {
-        this.resetNavigationState();
-        this.scrollToTop();
+        // Add small delay to ensure DOM is fully updated after navigation
+        setTimeout(() => {
+          this.resetNavigationState();
+          this.scrollToTop();
+        }, 50);
       });
     
     // Initial cleanup to handle browser back button and prevent animation replay
@@ -309,7 +312,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private resetNavigationState() {
-    // Simple reset like the "Back to Home" button - no complex DOM manipulation
+    // Reset navigation state like the "Back to Home" button
     this.isNavigating = false;
     
     if (this.navigationTimeout) {
@@ -322,9 +325,21 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
       this.animationTimeout = null;
     }
     
-    // Simple cleanup - just remove animation classes, no forced DOM manipulation
-    document.querySelectorAll('.nav-icon.animating').forEach(el => {
-      el.classList.remove('animating');
+    // More thorough cleanup for browser back button - force reset all animation states
+    document.querySelectorAll('.nav-icon').forEach(navIcon => {
+      // Remove animating class
+      navIcon.classList.remove('animating');
+      
+      // Force reset any lingering CSS animation states
+      const element = navIcon as HTMLElement;
+      element.style.animation = 'none';
+      element.style.transform = '';
+      
+      // Trigger reflow to ensure style reset
+      element.offsetHeight;
+      
+      // Reset animation property
+      element.style.animation = '';
     });
   }
 
@@ -409,15 +424,15 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
       
       // For external links on mobile, use redirect page approach to avoid popup blocker
       if (isMobileDevice && (url.includes('linkedin.com') || url.includes('seattlemj.com'))) {
-        // Navigate to redirect page after 1 second delay for animation
-        this.navigationTimeout = setTimeout(() => {
+        // Navigate immediately to preserve user action context, animation will continue
+        setTimeout(() => {
           if (url.includes('linkedin.com')) {
             this.router.navigate(['/linkedin']);
           } else if (url.includes('seattlemj.com')) {
             this.router.navigate(['/mjclub']);
           }
           this.isNavigating = false;
-        }, 1000);
+        }, 10); // Minimal delay to ensure animation starts
       } else {
         // For desktop or mobile with other external links, use direct window.open after delay
         const delay = isMobileDevice ? 1000 : 600; // Desktop: animation duration (0.6s), Mobile: 1s
