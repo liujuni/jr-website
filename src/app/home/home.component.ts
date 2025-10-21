@@ -9,12 +9,10 @@ import { RouterModule } from '@angular/router';
   template: `
     <div class="home-container">
       <div class="profile-container" (click)="nextProfilePicture()">
-        <div class="profile-frame">
-          <img 
-            [src]="currentProfilePicture" 
-            [alt]="'Profile Picture ' + (currentProfileIndex + 1)"
-            class="profile-image">
-        </div>
+        <img 
+          [src]="currentProfilePicture" 
+          [alt]="'Profile Picture ' + (currentProfileIndex + 1)"
+          class="profile-image">
       </div>
       
       <div class="navigation-icons">
@@ -56,20 +54,17 @@ import { RouterModule } from '@angular/router';
       cursor: pointer;
       transition: transform 0.3s ease;
       margin-bottom: 3rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 8px;
     }
     
     .profile-container:hover {
       transform: scale(1.05);
-    }
-    
-    .profile-frame {
-      display: inline-block;
-      background-image: url('https://website-juniorliu.s3.us-east-2.amazonaws.com/res/border1.jpg');
-      background-size: 130%;
-      background-repeat: no-repeat;
-      background-position: center;
-      padding: 110px;
-      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+      border-color: rgba(255, 255, 255, 0.6);
     }
     
     .profile-image {
@@ -79,7 +74,6 @@ import { RouterModule } from '@angular/router';
       height: auto;
       object-fit: contain;
       display: block;
-      margin: 0 auto;
     }
     
     .navigation-icons {
@@ -114,9 +108,8 @@ import { RouterModule } from '@angular/router';
         padding: 2rem 1rem 0;
       }
       
-      .profile-frame {
-        padding: 80px;
-        background-size: 120%;
+      .profile-container {
+        padding: 15px;
       }
       
       .profile-image {
@@ -146,9 +139,8 @@ import { RouterModule } from '@angular/router';
         padding: 1rem 0.5rem 0;
       }
       
-      .profile-frame {
-        padding: 60px;
-        background-size: 115%;
+      .profile-container {
+        padding: 10px;
       }
       
       .profile-image {
