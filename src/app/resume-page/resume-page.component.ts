@@ -287,154 +287,18 @@ export class ResumePageComponent implements OnInit {
     }, 5000);
   }
 
-  async downloadPdf() {
-    console.log('Starting PDF download, URL:', this.resumePdfUrl);
-    
-    // Try blob download first (this should trigger browser's native download dialog)
-    try {
-      console.log('Attempting blob download (should open file dialog)...');
-      const blob = await this.fetchPdfAsBlob();
-      if (blob && blob.size > 0) {
-        console.log('Blob received, triggering download dialog...');
-        this.downloadBlob(blob, 'resume-25.pdf');
-        return;
-      }
-    } catch (error) {
-      console.log('Blob download failed:', error);
-    }
-
-    // Fallback: show instructions if blob method fails
-    this.showDownloadInstructions();
-  }
-
-
-  private async fetchPdfAsBlob(): Promise<Blob | null> {
-    return new Promise((resolve) => {
-      const xhr = new XMLHttpRequest();
-      xhr.open('GET', this.resumePdfUrl, true);
-      xhr.responseType = 'blob';
-      
-      // Add timeout
-      xhr.timeout = 10000; // 10 seconds
-      
-      xhr.onload = () => {
-        console.log('XHR onload - status:', xhr.status, 'readyState:', xhr.readyState);
-        if (xhr.status === 200 && xhr.response instanceof Blob) {
-          console.log('PDF blob received, size:', xhr.response.size, 'type:', xhr.response.type);
-          resolve(xhr.response);
-        } else {
-          console.log('Failed to fetch PDF - status:', xhr.status, 'response type:', typeof xhr.response);
-          resolve(null);
-        }
-      };
-      
-      xhr.onerror = (event) => {
-        console.log('XHR error occurred:', event);
-        resolve(null);
-      };
-      
-      xhr.ontimeout = () => {
-        console.log('XHR timeout occurred');
-        resolve(null);
-      };
-      
-      xhr.onabort = () => {
-        console.log('XHR aborted');
-        resolve(null);
-      };
-      
-      try {
-        xhr.send();
-      } catch (error) {
-        console.log('XHR send failed:', error);
-        resolve(null);
-      }
-    });
-  }
-
-  private downloadBlob(blob: Blob, filename: string) {
-    const url = window.URL.createObjectURL(blob);
+  downloadPdf() {
+    // Simple direct download approach
     const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
+    link.href = this.resumePdfUrl;
+    link.download = 'resume-25.pdf';
     link.style.display = 'none';
     
-    // Ensure the download attribute is properly set
-    link.setAttribute('download', filename);
-    link.setAttribute('target', '_self');
-    
     document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
     
-    // Trigger download with multiple methods to ensure it works
-    try {
-      link.click();
-    } catch (e) {
-      console.log('Click failed, trying dispatchEvent');
-      const clickEvent = new MouseEvent('click', {
-        view: window,
-        bubbles: true,
-        cancelable: true
-      });
-      link.dispatchEvent(clickEvent);
-    }
-    
-    // Clean up after a delay to ensure download starts
-    setTimeout(() => {
-      if (document.body.contains(link)) {
-        document.body.removeChild(link);
-      }
-      window.URL.revokeObjectURL(url);
-    }, 1000);
-    
-    console.log('Blob download initiated');
+    console.log('PDF download initiated');
   }
 
-  private showDownloadInstructions() {
-    // Create a more user-friendly notification
-    const notification = document.createElement('div');
-    notification.style.cssText = `
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: #333;
-      color: white;
-      padding: 20px;
-      border-radius: 8px;
-      z-index: 10000;
-      max-width: 400px;
-      text-align: center;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-    `;
-    
-    notification.innerHTML = `
-      <h3 style="margin: 0 0 15px 0; color: #ffcc00;">Download Issue Detected</h3>
-      <p style="margin: 0 0 15px 0; font-size: 14px;">
-        The download should have opened your browser's "Save As" dialog to choose where to save the PDF file.
-      </p>
-      <p style="margin: 0 0 15px 0; font-size: 14px;">
-        If it didn't work, your PDF viewer extension may be interfering.
-      </p>
-      <p style="margin: 0 0 20px 0; font-size: 14px;">
-        <strong>Alternative:</strong> Right-click the "Download PDF" button and select "Save link as..."
-      </p>
-      <button onclick="this.parentElement.remove()" style="
-        background: #007bff;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 4px;
-        cursor: pointer;
-      ">Got it</button>
-    `;
-    
-    document.body.appendChild(notification);
-    
-    // Auto-remove after 10 seconds
-    setTimeout(() => {
-      if (document.body.contains(notification)) {
-        notification.remove();
-      }
-    }, 10000);
-  }
 }
