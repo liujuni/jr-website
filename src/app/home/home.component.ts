@@ -285,7 +285,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   private navigationTimeout: any;
   private animationTimeout: any;
   private isNavigating = false;
-  private pendingWindow: Window | null = null;
   
   constructor(private router: Router) {}
   
@@ -310,51 +309,23 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private resetNavigationState() {
+    // Simple reset like the "Back to Home" button - no complex DOM manipulation
     this.isNavigating = false;
-    this.pendingWindow = null;
+    
     if (this.navigationTimeout) {
       clearTimeout(this.navigationTimeout);
       this.navigationTimeout = null;
     }
+    
     if (this.animationTimeout) {
       clearTimeout(this.animationTimeout);
       this.animationTimeout = null;
     }
     
-    // More thorough cleanup to prevent animation replay on browser back button
-    document.querySelectorAll('.nav-icon').forEach(el => {
-      const navIcon = el as HTMLElement;
-      
-      // Remove animation class
-      navIcon.classList.remove('animating');
-      
-      // Force reset any ongoing animations immediately
-      navIcon.style.animation = 'none';
-      navIcon.style.transform = '';
-      
-      // Trigger reflow to ensure style changes take effect
-      navIcon.offsetHeight;
-      
-      // Re-enable animation but ensure no pending animations
-      navIcon.style.animation = '';
-      
-      // Also remove any pending animation timeouts by checking if this element was recently animated
-      // This prevents the double animation issue when returning via browser back button
+    // Simple cleanup - just remove animation classes, no forced DOM manipulation
+    document.querySelectorAll('.nav-icon.animating').forEach(el => {
+      el.classList.remove('animating');
     });
-    
-    // Additional safeguard: prevent any new animations from starting briefly
-    setTimeout(() => {
-      // Ensure all animations are truly stopped
-      document.querySelectorAll('.nav-icon').forEach(el => {
-        const navIcon = el as HTMLElement;
-        if (navIcon.classList.contains('animating')) {
-          navIcon.classList.remove('animating');
-          navIcon.style.animation = 'none';
-          navIcon.offsetHeight;
-          navIcon.style.animation = '';
-        }
-      });
-    }, 50);
   }
 
   private scrollToTop() {
@@ -371,7 +342,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     if (this.animationTimeout) {
       clearTimeout(this.animationTimeout);
     }
-    this.pendingWindow = null;
   }
   
   get currentProfilePicture(): string {
@@ -435,45 +405,40 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     }
     
     if (isExternal) {
-      // CRITICAL: For external links (LinkedIn, MJClub), NEVER navigate current tab
-      // Only open in new tab - current tab MUST stay on index.html
+      const isMobileDevice = this.isMobile();
       
-      // Wait for animation to complete before opening external link (works for both mobile and desktop)
-      this.navigationTimeout = setTimeout(() => {
-        this.pendingWindow = window.open(url, '_blank', 'noopener,noreferrer');
-        
-        // Check if window.open was blocked and use fallback if needed
-        if (!this.pendingWindow || this.pendingWindow.closed) {
-          // Fallback if blocked (works for both mobile and desktop)
-          const tempLink = document.createElement('a');
-          tempLink.href = url;
-          tempLink.target = '_blank';
-          tempLink.rel = 'noopener noreferrer';
-          document.body.appendChild(tempLink);
-          tempLink.click();
-          document.body.removeChild(tempLink);
-        } else {
-          // Window opened successfully, try to focus it
-          try {
-            this.pendingWindow.focus();
-          } catch (e) {
-            // Some browsers block focus, that's okay
+      // For external links on mobile, use redirect page approach to avoid popup blocker
+      if (isMobileDevice && (url.includes('linkedin.com') || url.includes('seattlemj.com'))) {
+        // Navigate to redirect page after 1 second delay for animation
+        this.navigationTimeout = setTimeout(() => {
+          if (url.includes('linkedin.com')) {
+            this.router.navigate(['/linkedin']);
+          } else if (url.includes('seattlemj.com')) {
+            this.router.navigate(['/mjclub']);
           }
-        }
-        
-        // Reset state - current tab stays on index.html
-        this.isNavigating = false;
-        this.pendingWindow = null;
-      }, 1500);
+          this.isNavigating = false;
+        }, 1000);
+      } else {
+        // For desktop or mobile with other external links, use direct window.open after delay
+        const delay = isMobileDevice ? 1000 : 600; // Desktop: animation duration (0.6s), Mobile: 1s
+        this.navigationTimeout = setTimeout(() => {
+          window.open(url, '_blank', 'noopener,noreferrer');
+          this.isNavigating = false;
+        }, delay);
+      }
       
-      // Explicitly return here to ensure no further navigation logic runs for external links
       return;
     } else {
       // For internal links, navigate after animation completes
+      const delay = this.isMobile() ? 1000 : 600; // Mobile: 1s, Desktop: animation duration (0.6s)
       this.navigationTimeout = setTimeout(() => {
         this.router.navigate([url]);
         this.isNavigating = false;
-      }, 1500);
+      }, delay);
     }
+  }
+
+  private isMobile(): boolean {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
   }
 }
