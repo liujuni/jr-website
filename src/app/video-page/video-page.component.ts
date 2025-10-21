@@ -11,7 +11,6 @@ import { Router } from '@angular/router';
       <video 
         #introVideo 
         class="fullscreen-video" 
-        muted 
         playsinline
         webkit-playsinline
         preload="metadata"
@@ -20,6 +19,7 @@ import { Router } from '@angular/router';
         (loadeddata)="onVideoLoaded()"
         (canplay)="onVideoCanPlay()"
         (canplaythrough)="onVideoCanPlay()"
+        (playing)="onVideoPlaying()"
         (click)="onVideoClick()"
         (touchstart)="onVideoTouch()">
         <source [src]="videoUrl" type="video/mp4">
@@ -76,6 +76,7 @@ export class VideoPageComponent implements AfterViewInit {
   @ViewChild('introVideo') introVideo!: ElementRef<HTMLVideoElement>;
   
   readonly videoUrl = 'https://website-juniorliu.s3.us-east-2.amazonaws.com/res/is-that-you.mp4';
+  private buttonAdded = false;
   
   constructor(private router: Router) {}
   
@@ -93,7 +94,8 @@ export class VideoPageComponent implements AfterViewInit {
       // Set iOS-specific attributes
       video.setAttribute('webkit-playsinline', 'true');
       video.setAttribute('playsinline', 'true');
-      video.muted = true;
+      // Remove muted to enable sound
+      video.muted = false;
       
       // Force load video metadata on iOS
       video.load();
@@ -105,17 +107,21 @@ export class VideoPageComponent implements AfterViewInit {
       
       video.addEventListener('loadedmetadata', () => {
         console.log('iOS Video metadata loaded');
-        this.addClickToPlayButton();
+        if (!this.buttonAdded) {
+          this.addClickToPlayButton();
+        }
       });
       
       video.addEventListener('canplay', () => {
         console.log('iOS Video can play');
-        this.addClickToPlayButton();
+        if (!this.buttonAdded) {
+          this.addClickToPlayButton();
+        }
       });
       
       // Fallback: show button after timeout if events don't fire
       setTimeout(() => {
-        if (!document.querySelector('.click-to-play')) {
+        if (!document.querySelector('.click-to-play') && !this.buttonAdded) {
           this.addClickToPlayButton();
         }
       }, 3000);
@@ -126,7 +132,8 @@ export class VideoPageComponent implements AfterViewInit {
   private addClickToPlayButton() {
     // Add a click overlay to allow user to play the video
     const container = document.querySelector('.video-page-container');
-    if (container && !container.querySelector('.click-to-play')) {
+    if (container && !container.querySelector('.click-to-play') && !this.buttonAdded) {
+      this.buttonAdded = true;
       const overlay = document.createElement('div');
       overlay.className = 'click-to-play';
       overlay.style.cssText = `
@@ -164,13 +171,23 @@ export class VideoPageComponent implements AfterViewInit {
   onVideoLoaded() {
     console.log('Video loaded and ready to play');
     // Show click to play button since autoplay is disabled
-    this.addClickToPlayButton();
+    if (!this.buttonAdded) {
+      this.addClickToPlayButton();
+    }
   }
   
   onVideoCanPlay() {
     console.log('Video can play');
     // Show click to play button since autoplay is disabled
-    this.addClickToPlayButton();
+    if (!this.buttonAdded) {
+      this.addClickToPlayButton();
+    }
+  }
+
+  onVideoPlaying() {
+    console.log('Video is now playing');
+    // Remove button when video actually starts playing
+    this.removeClickToPlayOverlay();
   }
   
   onVideoEnd() {
@@ -182,6 +199,9 @@ export class VideoPageComponent implements AfterViewInit {
   private playVideo() {
     if (this.introVideo && this.introVideo.nativeElement) {
       const video = this.introVideo.nativeElement;
+      
+      // Remove muted to enable sound when user clicks play
+      video.muted = false;
       
       // Ensure video is ready for iOS
       if (video.readyState >= 2) {
@@ -195,8 +215,7 @@ export class VideoPageComponent implements AfterViewInit {
               this.removeClickToPlayOverlay();
             }).catch(error => {
               console.log('Video play failed:', error);
-              // Fallback: show play button if autoplay fails
-              this.addClickToPlayButton();
+              // Don't re-add button on play failure, just log the error
             });
           }
         }
@@ -226,6 +245,7 @@ export class VideoPageComponent implements AfterViewInit {
     const overlay = document.querySelector('.click-to-play');
     if (overlay) {
       overlay.remove();
+      this.buttonAdded = false;
     }
   }
 }
