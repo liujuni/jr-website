@@ -63,7 +63,7 @@ import { filter } from 'rxjs/operators';
     
     .profile-container {
       transition: all 0.3s ease;
-      margin: -50px 2rem 0 !important;
+      margin: -100px 2rem 0 !important;
       padding: 0;
       position: relative;
       background: rgba(14, 7, 19);
@@ -73,8 +73,8 @@ import { filter } from 'rxjs/operators';
       position: absolute;
       top: 50%;
       left: 50%;
-      width: 264px;
-      height: 352px;
+      width: 350px;
+      height: 465px;
       transform: translate(-50%, -50%);
       background: transparent;
       cursor: pointer;
@@ -118,12 +118,12 @@ import { filter } from 'rxjs/operators';
     
     .profile-container.hovering {
       transform: scale(1.05) !important;
-      margin: -50px 2rem 0 !important;
+      margin: -100px 2rem 0 !important;
     }
     
     .profile-image {
-      max-width: 1331px;
-      max-height: 1331px;
+      max-width: 1464px;
+      max-height: 1464px;
       width: auto;
       height: auto;
       object-fit: contain;
@@ -140,7 +140,7 @@ import { filter } from 'rxjs/operators';
       display: flex;
       gap: 4rem;
       margin: 3rem 2rem 0;
-      transform: translateY(-100px);
+      transform: translateY(-110px);
     }
     
     .nav-icon {
@@ -190,7 +190,7 @@ import { filter } from 'rxjs/operators';
     
     @media (max-width: 768px) {
       .profile-container {
-        margin: -50px 1rem 0 !important;
+        margin: -100px 1rem 0 !important;
       }
       
       .navigation-icons {
@@ -198,13 +198,13 @@ import { filter } from 'rxjs/operators';
       }
       
       .profile-image {
-        max-width: 1088px;
-        max-height: 1088px;
+        max-width: 1197px;
+        max-height: 1197px;
       }
       
       .invisible-click-area {
-        width: 264px;
-        height: 352px;
+        width: 350px;
+        height: 465px;
       }
       
       .click-hint {
@@ -233,7 +233,7 @@ import { filter } from 'rxjs/operators';
     
     @media (max-width: 480px) {
       .profile-container {
-        margin: -50px 0.5rem 0 !important;
+        margin: -100px 0.5rem 0 !important;
       }
       
       .navigation-icons {
@@ -241,13 +241,13 @@ import { filter } from 'rxjs/operators';
       }
       
       .profile-image {
-        max-width: 870px;
-        max-height: 870px;
+        max-width: 957px;
+        max-height: 957px;
       }
       
       .invisible-click-area {
-        width: 264px;
-        height: 352px;
+        width: 350px;
+        height: 465px;
       }
       
       .click-hint {
