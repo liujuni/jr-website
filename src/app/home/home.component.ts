@@ -419,25 +419,30 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
       // Only open in new tab - current tab MUST stay on index.html
       
       this.pendingExternalUrl = url;
+      const isMobile = this.isMobileDevice();
       
-      // Wait for animation to complete before opening external link
-      this.navigationTimeout = setTimeout(() => {
-        const isMobile = this.isMobileDevice();
+      if (isMobile) {
+        // Mobile: Open immediately to preserve user action context for popup blockers
+        this.pendingWindow = window.open(url, '_blank', 'noopener,noreferrer');
         
-        if (isMobile) {
-          // Mobile-specific handling - more reliable approach
-          const tempLink = document.createElement('a');
-          tempLink.href = url;
-          tempLink.target = '_blank';
-          tempLink.rel = 'noopener noreferrer';
-          tempLink.style.display = 'none';
-          document.body.appendChild(tempLink);
+        // Reset state after animation completes (animation still plays)
+        this.navigationTimeout = setTimeout(() => {
+          // Try to focus the window if it was successfully opened
+          if (this.pendingWindow && !this.pendingWindow.closed) {
+            try {
+              this.pendingWindow.focus();
+            } catch (e) {
+              // Some browsers block focus, that's okay
+            }
+          }
           
-          // Use direct click for mobile - more reliable than window.open
-          tempLink.click();
-          document.body.removeChild(tempLink);
-        } else {
-          // Desktop handling
+          this.isNavigating = false;
+          this.pendingExternalUrl = null;
+          this.pendingWindow = null;
+        }, 1500);
+      } else {
+        // Desktop: Wait for animation, then open
+        this.navigationTimeout = setTimeout(() => {
           this.pendingWindow = window.open(url, '_blank', 'noopener,noreferrer');
           
           // Check if window.open was blocked
@@ -458,13 +463,13 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
               // Some browsers block focus, that's okay
             }
           }
-        }
-        
-        // Reset state - current tab stays on index.html
-        this.isNavigating = false;
-        this.pendingExternalUrl = null;
-        this.pendingWindow = null;
-      }, 1500);
+          
+          // Reset state - current tab stays on index.html
+          this.isNavigating = false;
+          this.pendingExternalUrl = null;
+          this.pendingWindow = null;
+        }, 1500);
+      }
       
       // Explicitly return here to ensure no further navigation logic runs for external links
       return;
