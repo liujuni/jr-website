@@ -16,9 +16,7 @@ import { Router } from '@angular/router';
         preload="metadata"
         controls="false"
         (ended)="onVideoEnd()"
-        (loadeddata)="onVideoLoaded()"
         (canplay)="onVideoCanPlay()"
-        (canplaythrough)="onVideoCanPlay()"
         (playing)="onVideoPlaying()"
         (click)="onVideoClick()"
         (touchstart)="onVideoTouch()">
@@ -106,41 +104,12 @@ export class VideoPageComponent implements OnInit, AfterViewInit {
       // Set iOS-specific attributes
       video.setAttribute('webkit-playsinline', 'true');
       video.setAttribute('playsinline', 'true');
-      // Remove muted to enable sound
       video.muted = false;
       
       // Reset video to beginning and pause
       video.currentTime = 0;
       video.pause();
-      
-      // Force load video metadata on iOS
       video.load();
-      
-      // Add iOS-specific event listeners
-      video.addEventListener('loadstart', () => {
-        console.log('iOS Video load started');
-      });
-      
-      video.addEventListener('loadedmetadata', () => {
-        console.log('iOS Video metadata loaded');
-        if (!this.buttonAdded && !this.buttonDismissed) {
-          this.addClickToPlayButton();
-        }
-      });
-      
-      video.addEventListener('canplay', () => {
-        console.log('iOS Video can play');
-        if (!this.buttonAdded && !this.buttonDismissed) {
-          this.addClickToPlayButton();
-        }
-      });
-      
-      // Fallback: show button after timeout if events don't fire
-      setTimeout(() => {
-        if (!document.querySelector('.click-to-play') && !this.buttonAdded && !this.buttonDismissed) {
-          this.addClickToPlayButton();
-        }
-      }, 3000);
     }
   }
   
@@ -184,16 +153,7 @@ export class VideoPageComponent implements OnInit, AfterViewInit {
     }
   }
   
-  onVideoLoaded() {
-    console.log('Video loaded and ready to play');
-    // Show click to play button since autoplay is disabled
-    if (!this.buttonAdded && !this.buttonDismissed) {
-      this.addClickToPlayButton();
-    }
-  }
-  
   onVideoCanPlay() {
-    console.log('Video can play');
     // Show click to play button since autoplay is disabled
     if (!this.buttonAdded && !this.buttonDismissed) {
       this.addClickToPlayButton();
@@ -201,14 +161,11 @@ export class VideoPageComponent implements OnInit, AfterViewInit {
   }
 
   onVideoPlaying() {
-    console.log('Video is now playing');
     // Button is already dismissed in playVideo(), just ensure it's removed
     this.removeClickToPlayOverlay();
   }
   
   onVideoEnd() {
-    console.log('Video ended, navigating to index');
-    // Navigate to index page when video ends
     this.router.navigate(['/index']);
   }
   
@@ -230,11 +187,8 @@ export class VideoPageComponent implements OnInit, AfterViewInit {
           const playPromise = video.play();
           
           if (playPromise !== undefined) {
-            playPromise.then(() => {
-              console.log('Video started playing');
-            }).catch(error => {
+            playPromise.catch(error => {
               console.log('Video play failed:', error);
-              // Don't re-add button on play failure, just log the error
             });
           }
         }
@@ -256,7 +210,6 @@ export class VideoPageComponent implements OnInit, AfterViewInit {
   }
 
   onVideoTouch() {
-    // Handle touch events for iOS
     this.playVideo();
   }
 
