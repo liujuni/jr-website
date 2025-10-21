@@ -13,11 +13,17 @@ import { Router } from '@angular/router';
         class="fullscreen-video" 
         muted 
         playsinline
+        webkit-playsinline
+        preload="metadata"
+        controls="false"
         (ended)="onVideoEnd()"
         (loadeddata)="onVideoLoaded()"
         (canplay)="onVideoCanPlay()"
-        (click)="onVideoClick()">
+        (canplaythrough)="onVideoCanPlay()"
+        (click)="onVideoClick()"
+        (touchstart)="onVideoTouch()">
         <source [src]="videoUrl" type="video/mp4">
+        Your browser does not support the video tag.
       </video>
     </div>
   `,
@@ -74,8 +80,46 @@ export class VideoPageComponent implements AfterViewInit {
   constructor(private router: Router) {}
   
   ngAfterViewInit() {
-    // No automatic play attempts - wait for user to click
-    // No timeout - let user stay on video page as long as they want
+    // Initialize video for iOS compatibility
+    setTimeout(() => {
+      this.initializeVideoForIOS();
+    }, 100);
+  }
+
+  private initializeVideoForIOS() {
+    if (this.introVideo && this.introVideo.nativeElement) {
+      const video = this.introVideo.nativeElement;
+      
+      // Set iOS-specific attributes
+      video.setAttribute('webkit-playsinline', 'true');
+      video.setAttribute('playsinline', 'true');
+      video.muted = true;
+      
+      // Force load video metadata on iOS
+      video.load();
+      
+      // Add iOS-specific event listeners
+      video.addEventListener('loadstart', () => {
+        console.log('iOS Video load started');
+      });
+      
+      video.addEventListener('loadedmetadata', () => {
+        console.log('iOS Video metadata loaded');
+        this.addClickToPlayButton();
+      });
+      
+      video.addEventListener('canplay', () => {
+        console.log('iOS Video can play');
+        this.addClickToPlayButton();
+      });
+      
+      // Fallback: show button after timeout if events don't fire
+      setTimeout(() => {
+        if (!document.querySelector('.click-to-play')) {
+          this.addClickToPlayButton();
+        }
+      }, 3000);
+    }
   }
   
   
@@ -90,17 +134,20 @@ export class VideoPageComponent implements AfterViewInit {
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        background: rgba(0, 0, 0, 0.7);
+        background: rgba(0, 0, 0, 0.8);
         color: white;
-        padding: 20px 40px;
-        border-radius: 10px;
+        padding: 25px 45px;
+        border-radius: 15px;
         cursor: pointer;
-        font-size: 18px;
+        font-size: 20px;
+        font-weight: bold;
         z-index: 1000;
         touch-action: manipulation;
         user-select: none;
-        min-width: 200px;
+        min-width: 250px;
         text-align: center;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        border: 2px solid rgba(255, 255, 255, 0.3);
       `;
       overlay.textContent = 'Tap to Play Video';
       overlay.addEventListener('click', () => {
@@ -135,12 +182,29 @@ export class VideoPageComponent implements AfterViewInit {
   private playVideo() {
     if (this.introVideo && this.introVideo.nativeElement) {
       const video = this.introVideo.nativeElement;
-      if (video.paused) {
-        video.play().then(() => {
-          this.removeClickToPlayOverlay();
-        }).catch(error => {
-          console.log('Video play failed:', error);
-        });
+      
+      // Ensure video is ready for iOS
+      if (video.readyState >= 2) {
+        if (video.paused) {
+          // Promise-based play for iOS compatibility
+          const playPromise = video.play();
+          
+          if (playPromise !== undefined) {
+            playPromise.then(() => {
+              console.log('Video started playing');
+              this.removeClickToPlayOverlay();
+            }).catch(error => {
+              console.log('Video play failed:', error);
+              // Fallback: show play button if autoplay fails
+              this.addClickToPlayButton();
+            });
+          }
+        }
+      } else {
+        // Video not ready, wait a bit and try again
+        setTimeout(() => {
+          this.playVideo();
+        }, 500);
       }
     }
   }
@@ -150,6 +214,11 @@ export class VideoPageComponent implements AfterViewInit {
   }
   
   onVideoClick() {
+    this.playVideo();
+  }
+
+  onVideoTouch() {
+    // Handle touch events for iOS
     this.playVideo();
   }
 
