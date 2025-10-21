@@ -100,9 +100,11 @@ export class VideoPageComponent implements AfterViewInit {
       overlay.textContent = 'Click to Play Video';
       overlay.addEventListener('click', () => {
         if (this.introVideo && this.introVideo.nativeElement) {
-          this.introVideo.nativeElement.play().catch(console.error);
+          this.introVideo.nativeElement.play().then(() => {
+            // Remove overlay when video starts playing
+            this.removeClickToPlayOverlay();
+          }).catch(console.error);
         }
-        overlay.remove();
       });
       container.appendChild(overlay);
     }
@@ -110,12 +112,14 @@ export class VideoPageComponent implements AfterViewInit {
   
   onVideoLoaded() {
     console.log('Video loaded and ready to play');
-    // Video is loaded but waiting for user interaction
+    // Show click to play button since autoplay is disabled
+    this.addClickToPlayFallback();
   }
   
   onVideoCanPlay() {
     console.log('Video can play');
-    // Video is ready but waiting for user to click play
+    // Show click to play button since autoplay is disabled
+    this.addClickToPlayFallback();
   }
   
   onVideoEnd() {
@@ -129,7 +133,10 @@ export class VideoPageComponent implements AfterViewInit {
     if (this.introVideo && this.introVideo.nativeElement) {
       const video = this.introVideo.nativeElement;
       if (video.paused) {
-        video.play().catch(error => {
+        video.play().then(() => {
+          // Remove the play button overlay when video starts
+          this.removeClickToPlayOverlay();
+        }).catch(error => {
           console.log('Video play failed on container click:', error);
         });
       }
@@ -141,10 +148,20 @@ export class VideoPageComponent implements AfterViewInit {
     if (this.introVideo && this.introVideo.nativeElement) {
       const video = this.introVideo.nativeElement;
       if (video.paused) {
-        video.play().catch(error => {
+        video.play().then(() => {
+          // Remove the play button overlay when video starts
+          this.removeClickToPlayOverlay();
+        }).catch(error => {
           console.log('Video play failed on video click:', error);
         });
       }
+    }
+  }
+
+  private removeClickToPlayOverlay() {
+    const overlay = document.querySelector('.click-to-play');
+    if (overlay) {
+      overlay.remove();
     }
   }
 }
