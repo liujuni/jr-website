@@ -49,25 +49,25 @@ import { filter } from 'rxjs/operators';
     </div>
   `,
   styles: [`
-    .home-container {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      background: rgba(14, 7, 19);
+     .home-container {
+       min-height: 100vh;
+       display: flex;
+       flex-direction: column;
+       align-items: center;
+       justify-content: flex-start;
+       background: rgba(10, 9, 15);
       overflow: visible;
       padding: 50px 0 0 0;
       margin: 0;
       position: relative;
     }
     
-    .profile-container {
-      transition: all 0.3s ease;
-      margin: -100px 2rem 0 !important;
-      padding: 0;
-      position: relative;
-      background: rgba(14, 7, 19);
+     .profile-container {
+       transition: all 0.3s ease;
+       margin: -100px 2rem 0 !important;
+       padding: 0;
+       position: relative;
+       background: transparent;
     }
     
     .invisible-click-area {
@@ -82,31 +82,32 @@ import { filter } from 'rxjs/operators';
       z-index: 5;
     }
     
-    .click-hint {
-      position: absolute;
-      top: 85px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 5px;
-      z-index: 10;
-    }
+     .click-hint {
+       position: absolute;
+       top: 85px;
+       left: 50%;
+       transform: translateX(-50%);
+       display: flex;
+       flex-direction: row;
+       align-items: center;
+       gap: 5px;
+       z-index: 10;
+     }
     
     .finger-point {
       font-size: 24px;
       animation: pointDown 2s ease-in-out infinite;
     }
     
-    .click-text {
-      color: white;
-      font-size: 14px;
-      font-weight: bold;
-      background: rgba(0, 0, 0, 0.7);
-      padding: 4px 8px;
-      border-radius: 4px;
-    }
+     .click-text {
+       color: white;
+       font-size: 14px;
+       font-weight: bold;
+       background: transparent;
+       padding: 4px 8px;
+       border-radius: 4px;
+       animation: pointDown 2s ease-in-out infinite;
+     }
     
     @keyframes pointDown {
       0%, 100% {
@@ -131,9 +132,9 @@ import { filter } from 'rxjs/operators';
       object-position: center;
       display: block;
       margin: 0 auto;
-      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
-      background: rgba(14, 7, 19);
-      border: none;
+       box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+       background: transparent;
+       border: none;
       outline: none;
       transition: transform 0.3s ease;
     }
