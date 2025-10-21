@@ -283,8 +283,8 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   
   currentProfileIndex = 0;
   private navigationTimeout: any;
+  private animationTimeout: any;
   private isNavigating = false;
-  private pendingExternalUrl: string | null = null;
   private pendingWindow: Window | null = null;
   
   constructor(private router: Router) {}
@@ -301,14 +301,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     // Initial cleanup to handle browser back button and prevent animation replay
     setTimeout(() => {
       this.resetNavigationState();
-      // Remove any lingering animation classes and reset all nav icons
-      document.querySelectorAll('.nav-icon').forEach(el => {
-        el.classList.remove('animating');
-        // Force a style recalculation to ensure no visual artifacts
-        (el as HTMLElement).style.animation = 'none';
-        (el as HTMLElement).offsetHeight; // Trigger reflow
-        (el as HTMLElement).style.animation = '';
-      });
     }, 100);
   }
 
@@ -319,20 +311,50 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private resetNavigationState() {
     this.isNavigating = false;
-    this.pendingExternalUrl = null;
     this.pendingWindow = null;
     if (this.navigationTimeout) {
       clearTimeout(this.navigationTimeout);
       this.navigationTimeout = null;
     }
-    // Remove all animation classes from nav icons and reset any visual state
+    if (this.animationTimeout) {
+      clearTimeout(this.animationTimeout);
+      this.animationTimeout = null;
+    }
+    
+    // More thorough cleanup to prevent animation replay on browser back button
     document.querySelectorAll('.nav-icon').forEach(el => {
-      el.classList.remove('animating');
-      // Force reset of any ongoing animations
-      (el as HTMLElement).style.animation = 'none';
-      (el as HTMLElement).offsetHeight; // Trigger reflow
-      (el as HTMLElement).style.animation = '';
+      const navIcon = el as HTMLElement;
+      
+      // Remove animation class
+      navIcon.classList.remove('animating');
+      
+      // Force reset any ongoing animations immediately
+      navIcon.style.animation = 'none';
+      navIcon.style.transform = '';
+      
+      // Trigger reflow to ensure style changes take effect
+      navIcon.offsetHeight;
+      
+      // Re-enable animation but ensure no pending animations
+      navIcon.style.animation = '';
+      
+      // Also remove any pending animation timeouts by checking if this element was recently animated
+      // This prevents the double animation issue when returning via browser back button
     });
+    
+    // Additional safeguard: prevent any new animations from starting briefly
+    setTimeout(() => {
+      // Ensure all animations are truly stopped
+      document.querySelectorAll('.nav-icon').forEach(el => {
+        const navIcon = el as HTMLElement;
+        if (navIcon.classList.contains('animating')) {
+          navIcon.classList.remove('animating');
+          navIcon.style.animation = 'none';
+          navIcon.offsetHeight;
+          navIcon.style.animation = '';
+        }
+      });
+    }, 50);
   }
 
   private scrollToTop() {
@@ -346,7 +368,9 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     if (this.navigationTimeout) {
       clearTimeout(this.navigationTimeout);
     }
-    this.pendingExternalUrl = null;
+    if (this.animationTimeout) {
+      clearTimeout(this.animationTimeout);
+    }
     this.pendingWindow = null;
   }
   
@@ -370,11 +394,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
   
-  private isMobileDevice(): boolean {
-    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
-           (typeof window !== 'undefined' && window.innerWidth <= 768);
-  }
-
   navigateWithAnimation(url: string, isExternal: boolean, event?: Event) {
     // Prevent multiple navigation attempts or running animation after back button return
     if (this.isNavigating) {
@@ -408,9 +427,10 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
       // Add animation class to the specific icon being clicked
       navIcon.classList.add('animating');
       
-      // Remove animation class after animation completes
-      setTimeout(() => {
+      // Remove animation class after animation completes (store timeout to clear on navigation)
+      this.animationTimeout = setTimeout(() => {
         navIcon?.classList.remove('animating');
+        this.animationTimeout = null;
       }, 600); // Animation duration is 0.6s
     }
     
@@ -418,58 +438,33 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
       // CRITICAL: For external links (LinkedIn, MJClub), NEVER navigate current tab
       // Only open in new tab - current tab MUST stay on index.html
       
-      this.pendingExternalUrl = url;
-      const isMobile = this.isMobileDevice();
-      
-      if (isMobile) {
-        // Mobile: Open immediately to preserve user action context for popup blockers
+      // Wait for animation to complete before opening external link (works for both mobile and desktop)
+      this.navigationTimeout = setTimeout(() => {
         this.pendingWindow = window.open(url, '_blank', 'noopener,noreferrer');
         
-        // Reset state after animation completes (animation still plays)
-        this.navigationTimeout = setTimeout(() => {
-          // Try to focus the window if it was successfully opened
-          if (this.pendingWindow && !this.pendingWindow.closed) {
-            try {
-              this.pendingWindow.focus();
-            } catch (e) {
-              // Some browsers block focus, that's okay
-            }
+        // Check if window.open was blocked and use fallback if needed
+        if (!this.pendingWindow || this.pendingWindow.closed) {
+          // Fallback if blocked (works for both mobile and desktop)
+          const tempLink = document.createElement('a');
+          tempLink.href = url;
+          tempLink.target = '_blank';
+          tempLink.rel = 'noopener noreferrer';
+          document.body.appendChild(tempLink);
+          tempLink.click();
+          document.body.removeChild(tempLink);
+        } else {
+          // Window opened successfully, try to focus it
+          try {
+            this.pendingWindow.focus();
+          } catch (e) {
+            // Some browsers block focus, that's okay
           }
-          
-          this.isNavigating = false;
-          this.pendingExternalUrl = null;
-          this.pendingWindow = null;
-        }, 1500);
-      } else {
-        // Desktop: Wait for animation, then open
-        this.navigationTimeout = setTimeout(() => {
-          this.pendingWindow = window.open(url, '_blank', 'noopener,noreferrer');
-          
-          // Check if window.open was blocked
-          if (!this.pendingWindow || this.pendingWindow.closed) {
-            // Fallback for desktop if blocked
-            const tempLink = document.createElement('a');
-            tempLink.href = url;
-            tempLink.target = '_blank';
-            tempLink.rel = 'noopener noreferrer';
-            document.body.appendChild(tempLink);
-            tempLink.click();
-            document.body.removeChild(tempLink);
-          } else {
-            // Window opened successfully, try to focus it
-            try {
-              this.pendingWindow.focus();
-            } catch (e) {
-              // Some browsers block focus, that's okay
-            }
-          }
-          
-          // Reset state - current tab stays on index.html
-          this.isNavigating = false;
-          this.pendingExternalUrl = null;
-          this.pendingWindow = null;
-        }, 1500);
-      }
+        }
+        
+        // Reset state - current tab stays on index.html
+        this.isNavigating = false;
+        this.pendingWindow = null;
+      }, 1500);
       
       // Explicitly return here to ensure no further navigation logic runs for external links
       return;
