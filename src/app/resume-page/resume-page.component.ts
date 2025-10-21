@@ -180,8 +180,10 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
       }
       
       .back-button {
-        padding: 0.6rem 1.2rem;
-        font-size: 0.8rem;
+        top: 1rem;
+        left: 1rem;
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
       }
       
       .resume-display {
@@ -201,6 +203,13 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
       .download-button {
         padding: 0.7rem 1.2rem;
         font-size: 0.9rem;
+      }
+      
+      .back-button {
+        top: 0.5rem;
+        left: 0.5rem;
+        padding: 0.5rem 0.8rem;
+        font-size: 0.8rem;
       }
       
       .resume-display {

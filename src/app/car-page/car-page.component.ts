@@ -62,12 +62,34 @@ import { RouterModule } from '@angular/router';
     }
     
     @media (max-width: 768px) {
+      .back-button {
+        top: 1rem;
+        left: 1rem;
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+      }
+      
       h1 {
         font-size: 2rem;
       }
       
       p {
         font-size: 1.2rem;
+        padding: 0 1rem;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .back-button {
+        top: 0.5rem;
+        left: 0.5rem;
+        padding: 0.5rem 0.8rem;
+        font-size: 0.8rem;
+      }
+      
+      p {
+        font-size: 1rem;
+        padding: 0 0.5rem;
       }
     }
   `]

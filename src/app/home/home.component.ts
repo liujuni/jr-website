@@ -134,6 +134,10 @@ import { RouterModule } from '@angular/router';
     }
     
     @media (max-width: 768px) {
+      .home-container {
+        padding: 1rem;
+      }
+      
       .profile-frame {
         background-size: 125% 125%;
         padding: 50px;
@@ -146,11 +150,49 @@ import { RouterModule } from '@angular/router';
       
       .navigation-icons {
         gap: 2.5rem;
+        flex-wrap: wrap;
+        justify-content: center;
       }
       
       .nav-icon .icon {
         width: 50px;
         height: 50px;
+      }
+      
+      .nav-icon {
+        min-width: 70px;
+        min-height: 70px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .home-container {
+        padding: 0.5rem;
+      }
+      
+      .profile-frame {
+        background-size: 120% 120%;
+        padding: 40px;
+      }
+      
+      .profile-image {
+        max-width: 250px;
+        max-height: 250px;
+      }
+      
+      .navigation-icons {
+        gap: 1.5rem;
+      }
+      
+      .nav-icon .icon {
+        width: 40px;
+        height: 40px;
+      }
+      
+      .nav-icon {
+        min-width: 60px;
+        min-height: 60px;
+        padding: 8px;
       }
     }
   `]

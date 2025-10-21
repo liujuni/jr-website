@@ -42,6 +42,18 @@ import { Router } from '@angular/router';
       height: 100%;
       object-fit: contain;
     }
+    
+    @media (max-width: 768px) {
+      .video-page-container {
+        padding: 1rem;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .video-page-container {
+        padding: 0.5rem;
+      }
+    }
   `]
 })
 export class VideoPageComponent implements AfterViewInit {
