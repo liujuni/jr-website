@@ -62,8 +62,8 @@ import { filter } from 'rxjs/operators';
     }
     
     .profile-image {
-      max-width: 306px;
-      max-height: 306px;
+      max-width: 612px;
+      max-height: 612px;
       width: auto;
       height: auto;
       object-fit: contain;
@@ -128,8 +128,8 @@ import { filter } from 'rxjs/operators';
       }
       
       .profile-image {
-        max-width: 250px;
-        max-height: 250px;
+        max-width: 500px;
+        max-height: 500px;
       }
       
       .navigation-icons {
@@ -158,8 +158,8 @@ import { filter } from 'rxjs/operators';
       }
       
       .profile-image {
-        max-width: 200px;
-        max-height: 200px;
+        max-width: 400px;
+        max-height: 400px;
       }
       
       .navigation-icons {
